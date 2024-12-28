@@ -3,14 +3,27 @@ import React, { useState } from "react";
 const Grid = () => {
     const [grid, setGrid] = useState(Array(3).fill(null));
     const [currentPlayer, setCurrentPlayer] = useState('X');
+    const [moves, setMoves] = useState([]);
 
     const handleMove = (row, col) => {
         if(grid[row][col]) return;
 
+        const newMove = { player: currentPlayer, row, col };
+        const updatedMoves = [...moves, newMove];
+
+        if(updatedMoves.length % 3 === 0) {
+            const oldestMoveIndex = updatedMoves.findIndex((move) => move.player === currentPlayer);
+            if (oldestMoveIndex !== -1) {
+                const [removedMove] = updatedMoves.splice(oldestMoveIndex, 1);
+                grid[removedMove.row][removedMove.col] = null;
+            }
+        }
+
         const newGrid = grid.map((rowArr, i) => 
-            rowArr.map((cell, j) => (i === row && j === coll ? currentPlayer : cell))
+            rowArr.map((cell, j) => (i === row && j === col ? currentPlayer : cell))
         );
 
+        setMoves(updatedMoves);
         setGrid(newGrid);
         setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
     };
