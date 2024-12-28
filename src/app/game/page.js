@@ -4,7 +4,9 @@ export default function Home() {
     return (
         <div>
             <h1>TicTacTWO</h1>
-            <Grid />
+            <div style={{ width: '200px', margin: '0 auto'}}>
+                <Grid />
+            </div>
         </div>
     )
 }
