@@ -1,9 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const Grid = () => {
+const Grid = ({ mode }) => {
     const [grid, setGrid] = useState(Array(3).fill(null));
     const [currentPlayer, setCurrentPlayer] = useState('X');
     const [moves, setMoves] = useState([]);
+    const [winner, setWinner] = useState(null);
+
+    const checkWinner = () => {
+        // Add winning condition and logig
+        // set winner
+    }
+
+    useEffect(() => {
+        checkWinner();
+    }, [grid]);
 
     const handleMove = (row, col) => {
         if(grid[row][col]) return;
@@ -29,30 +39,33 @@ const Grid = () => {
     };
 
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px' }}>
-            {
-                grid.map((row, i) => 
-                    row.map((cell, j) => (
-                        <div
-                            key={`${i}-${j}`}
-                            onClick={() => handleMove(i, j)}
-                            style={{
-                                width: '50px',
-                                height: '50px',
-                                backgroundColor: cell ? '#ccc' : '#fff',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                border: '1px solid #000',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            {cell}
-                        </div>
-                    ))
-                )
-            }
-        </div>
+        <div>
+            <div>{winner ? `Winner: ${winner}` : `Current Player: ${currentPlayer}`}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px' }}>
+                    {
+                        grid.map((row, i) => 
+                            row.map((cell, j) => (
+                                <div
+                                    key={`${i}-${j}`}
+                                    onClick={() => handleMove(i, j)}
+                                    style={{
+                                        width: '50px',
+                                        height: '50px',
+                                        backgroundColor: cell ? '#ccc' : '#fff',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        border: '1px solid #000',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    {cell}
+                                </div>
+                            ))
+                        )
+                    }
+                </div>
+            </div>
     )
 }
 
