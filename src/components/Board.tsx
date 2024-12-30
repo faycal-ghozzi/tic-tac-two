@@ -1,24 +1,22 @@
+"use client";
+
 import { useState } from "react";
 import { getAIMove } from "../utils/ai";
+import { checkWinner } from "../utils/checkWinner";
 
 export default function Board() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
   const [xMoves, setXMoves] = useState<number[]>([]);
   const [oMoves, setOMoves] = useState<number[]>([]);
-
-  const handleAIMove = () => {
-    const aiMove = getAIMove(board);
-    if (aiMove !== undefined) handleClick(aiMove);
-  };
+  const [winner, setWinner] = useState<string | null>(null);
 
   const handleClick = (index: number) => {
-    if (board[index]) return;
+    if (board[index] || winner) return;
 
     const newBoard = [...board];
     const playerSymbol = isXNext ? "X" : "O";
 
-    // Add the current move to the board and the player's move list
     newBoard[index] = playerSymbol;
     if (isXNext) {
       const newXMoves = [...xMoves, index];
@@ -39,21 +37,48 @@ export default function Board() {
     setBoard(newBoard);
     setIsXNext(!isXNext);
 
-    if (!isXNext) setTimeout(handleAIMove, 500);
+    const result = checkWinner(newBoard);
+    if (result) {
+      setWinner(result);
+    }
+  };
 
+  const resetGame = () => {
+    setBoard(Array(9).fill(null));
+    setIsXNext(true);
+    setXMoves([]);
+    setOMoves([]);
+    setWinner(null);
   };
 
   return (
-    <div className="grid grid-cols-3 gap-2 w-48">
-      {board.map((cell, index) => (
-        <div
-          key={index}
-          className="w-16 h-16 flex items-center justify-center border border-gray-300 text-2xl font-bold cursor-pointer"
-          onClick={() => handleClick(index)}
-        >
-          {cell}
+    <div className="flex flex-col items-center">
+      <div className="grid grid-cols-3 gap-2 w-48 mb-4">
+        {board.map((cell, index) => (
+          <div
+            key={index}
+            className="w-16 h-16 flex items-center justify-center border border-gray-300 text-2xl font-bold cursor-pointer"
+            onClick={() => handleClick(index)}
+          >
+            {cell}
+          </div>
+        ))}
+      </div>
+      {winner && (
+        <div className="mb-4">
+          {winner === "Tie" ? (
+            <h2 className="text-lg font-bold">It's a Tie!</h2>
+          ) : (
+            <h2 className="text-lg font-bold">{winner} Wins!</h2>
+          )}
         </div>
-      ))}
+      )}
+      <button
+        onClick={resetGame}
+        className="bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        Reset Game
+      </button>
     </div>
   );
 }
