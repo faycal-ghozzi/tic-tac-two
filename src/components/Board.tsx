@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { getAIMove } from "../utils/ai";
 import { checkWinner } from "../utils/checkWinner";
+import { auth } from "../utils/firebase";
+import { updateUserScore } from "../utils/firestore";
 
 export default function Board() {
   const [board, setBoard] = useState(Array(9).fill(null));
@@ -40,6 +42,15 @@ export default function Board() {
     const result = checkWinner(newBoard);
     if (result) {
       setWinner(result);
+      const userId = auth.currentUser?.uid;
+        if (userId) {
+          if (result === "X" || result === "O") {
+            const isWin = (result === "X" && isXNext) || (result === "O" && !isXNext);
+            updateUserScore(userId, isWin ? "win" : "loss");
+          } else if (result === "Tie") {
+            updateUserScore(userId, "tie");
+          }
+        }
     }
   };
 
