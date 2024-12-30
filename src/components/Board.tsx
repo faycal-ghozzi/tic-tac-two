@@ -1,10 +1,16 @@
 import { useState } from "react";
+import { getAIMove } from "../utils/ai";
 
 export default function Board() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
   const [xMoves, setXMoves] = useState<number[]>([]);
   const [oMoves, setOMoves] = useState<number[]>([]);
+
+  const handleAIMove = () => {
+    const aiMove = getAIMove(board);
+    if (aiMove !== undefined) handleClick(aiMove);
+  };
 
   const handleClick = (index: number) => {
     if (board[index]) return;
@@ -32,6 +38,9 @@ export default function Board() {
 
     setBoard(newBoard);
     setIsXNext(!isXNext);
+
+    if (!isXNext) setTimeout(handleAIMove, 500);
+
   };
 
   return (
