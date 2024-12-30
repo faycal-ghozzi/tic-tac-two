@@ -23,30 +23,38 @@ export default function Navbar() {
         <Link href="/">Tic Tac Two</Link>
       </h1>
       <div className="flex space-x-4">
-        {user ? (
-          <button
+        {!user ? (
+            <>
+            <Link
+                href="/login"
+                className="bg-blue-500 px-4 py-2 rounded hover:bg-blue-700"
+            >
+                Login
+            </Link>
+            <Link
+                href="/signup"
+                className="bg-green-500 px-4 py-2 rounded hover:bg-green-700"
+            >
+                Sign Up
+            </Link>
+            </>
+        ) : (
+            <button
             onClick={handleLogout}
             className="bg-red-500 px-4 py-2 rounded hover:bg-red-700"
-          >
+            >
             Logout
-          </button>
-        ) : (
-          <Link
-            href="/login"
-            className="bg-blue-500 px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Login
-          </Link>
+            </button>
         )}
         <a
-          href="https://www.paypal.com/donate?hosted_button_id=YOUR_PAYPAL_ID"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-green-500 px-4 py-2 rounded hover:bg-green-700"
+            href="https://www.paypal.com/donate?hosted_button_id=YOUR_PAYPAL_ID"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-green-500 px-4 py-2 rounded hover:bg-green-700"
         >
-          Donate
+            Donate
         </a>
-      </div>
+        </div>
     </nav>
   );
 }
