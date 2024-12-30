@@ -4,7 +4,7 @@ export default function Board() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
 
-  const handleClick = (index) => {
+  const handleClick = (index: number) => {
     if (board[index]) return;
     const newBoard = [...board];
     newBoard[index] = isXNext ? "X" : "O";
