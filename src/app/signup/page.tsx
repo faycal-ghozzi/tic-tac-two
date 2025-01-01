@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { auth, db } from "../../utils/firebase";
-import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,17 +48,18 @@ export default function SignupPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Add user data to Firestore
       await setDoc(doc(db, "users", user.uid), {
         username,
         email,
         createdAt: new Date(),
       });
 
-      // Send email verification
       await sendEmailVerification(user);
 
-      setSuccess("Signup successful! Please verify your email.");
+      setSuccess("Signup successful! Redirecting to login...");
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } catch (err: any) {
       setError(err.message || "Signup failed.");
     }

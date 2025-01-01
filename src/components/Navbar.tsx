@@ -47,7 +47,7 @@ export default function Navbar() {
             </button>
         )}
         <a
-            href="https://www.paypal.com/donate?hosted_button_id=YOUR_PAYPAL_ID"
+            href="https://www.paypal.com/donate?hosted_button_id=fgh19"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-green-500 px-4 py-2 rounded hover:bg-green-700"

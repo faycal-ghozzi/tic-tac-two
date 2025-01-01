@@ -1,33 +1,33 @@
 "use client";
 
-import { auth } from "../../utils/firebase";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
 import { useState } from "react";
+import { auth } from "../../utils/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isSignup, setIsSignup] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
     try {
-      if (isSignup) {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
-    } catch (error) {
-      console.error("Authentication error:", error);
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push("/game");
+    } catch (err: any) {
+      setError(err.message || "Login failed.");
     }
   };
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-64">
+      <h1 className="text-2xl font-bold mb-4">Log In</h1>
+      <form onSubmit={handleLogin} className="flex flex-col gap-4 w-64">
+        {error && <p className="text-red-500">{error}</p>}
         <input
           type="email"
           placeholder="Email"
@@ -48,14 +48,7 @@ export default function LoginPage() {
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded"
         >
-          {isSignup ? "Sign Up" : "Login"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setIsSignup(!isSignup)}
-          className="text-sm text-gray-500"
-        >
-          {isSignup ? "Already have an account? Log in" : "Don't have an account? Sign up"}
+          Log In
         </button>
       </form>
     </main>
