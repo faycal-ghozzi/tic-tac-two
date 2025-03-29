@@ -27,6 +27,9 @@ export default function HomePage() {
       <main className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-4xl font-bold mb-4">Welcome to Tic Tac Toe!</h1>
         <div className="space-y-4">
+          <a href="/game/local" className="bg-purple-500 text-white px-4 py-2 rounded">
+            Local Multiplayer
+          </a>
           <a href="/game" className="bg-blue-500 text-white px-4 py-2 rounded">
             Play Game
           </a>
