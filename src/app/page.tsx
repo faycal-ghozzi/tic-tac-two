@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { auth } from "../utils/firebase";
 import { useRouter } from "next/navigation";
 import { User } from "firebase/auth";
+import Link from "next/link";
 
 export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -32,15 +33,15 @@ export default function HomePage() {
         </h1>
 
         <div className="flex flex-col gap-6 w-[280px]">
-          <a href="/game/local" className="menu-btn menu-btn-purple">
+          <Link href="/game/local" className="menu-btn menu-btn-purple">
             Local Multiplayer
-          </a>
-          <a href="/game" className="menu-btn menu-btn-blue" style={{ pointerEvents: 'none', opacity: 0.5 }}>
+          </Link>
+          <Link href="/game" className="menu-btn menu-btn-blue" style={{ pointerEvents: 'none', opacity: 0.5 }}>
             Play Game
-          </a>
-          {/* <a href="/scoreboard" className="menu-btn menu-btn-green">
+          </Link>
+          {/* <Link href="/scoreboard" className="menu-btn menu-btn-green">
             View Scoreboard
-          </a> */}
+          </Link> */}
         </div>
 
       </main>

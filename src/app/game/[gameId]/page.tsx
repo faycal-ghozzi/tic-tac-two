@@ -7,8 +7,18 @@ import { db } from "../../../utils/firebase";
 import Board from "../../../components/Board";
 
 export default function GameDetailPage() {
+
+  type GameType = {
+    playerX: string;
+    playerO: string | null;
+    board: (string | null)[];
+    turn: "playerX" | "playerO";
+    status: string;
+    winner: string | null;
+  };
+
   const { gameId } = useParams<{ gameId: string }>();
-  const [game, setGame] = useState<any>(null);
+  const [game, setGame] = useState<GameType | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
