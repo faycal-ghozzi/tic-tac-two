@@ -29,7 +29,7 @@ export default function GameDetailPage() {
       gameRef,
       (docSnapshot) => {
         if (docSnapshot.exists()) {
-          setGame(docSnapshot.data());
+          setGame(docSnapshot.data() as GameType);
         } else {
           console.error("Game does not exist");
           setGame(null);
