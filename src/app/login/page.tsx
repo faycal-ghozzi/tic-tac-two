@@ -18,9 +18,10 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/game");
-    } catch (err: any) {
-      setError(err.message || "Login failed.");
-    }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Login failed.";
+      setError(errorMessage);
+    }    
   };
 
   return (
