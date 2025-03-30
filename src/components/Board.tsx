@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import confetti from "canvas-confetti";
 import BoardCore from "./BoardCore";
 import { checkWinner } from "../utils/checkWinner";
@@ -22,7 +22,6 @@ interface BoardProps {
 
 export default function Board({
   isOnline,
-  gameId,
   game,
   initialGameState,
   onLocalStateChange,
