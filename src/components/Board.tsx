@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
 import BoardCore from "./BoardCore";
 import { checkWinner } from "../utils/checkWinner";
+import { GameType } from "../types/GameType";
 
 interface LocalGame {
   board: (string | null)[];
@@ -11,12 +12,29 @@ interface LocalGame {
   winner: string | null;
 }
 
-export default function Board() {
-  const [game, setGame] = useState<LocalGame>({
-    board: Array(9).fill(null),
-    turn: "X",
-    winner: null,
-  });
+interface BoardProps {
+  isOnline: boolean;
+  gameId?: string;
+  game?: GameType;
+  initialGameState?: LocalGame;
+  onLocalStateChange?: (state: LocalGame) => void;
+}
+
+export default function Board({
+  isOnline,
+  gameId,
+  game,
+  initialGameState,
+  onLocalStateChange,
+}: BoardProps) {
+  // Local game state
+  const [localGame, setLocalGame] = useState<LocalGame>(
+    initialGameState || {
+      board: Array(9).fill(null),
+      turn: "X",
+      winner: null,
+    }
+  );
 
   const [xHistory, setXHistory] = useState<number[]>([]);
   const [oHistory, setOHistory] = useState<number[]>([]);
@@ -26,9 +44,27 @@ export default function Board() {
   const [winningLine, setWinningLine] = useState<number[] | null>(null);
   const [showModal, setShowModal] = useState(false);
 
+  // Safety check for online mode
+  if (isOnline && !game) {
+    return <div>Loading game...</div>;
+  }
+
+  const board = isOnline ? game!.board : localGame.board;
+  const turn = isOnline
+    ? game!.turn === "playerX"
+      ? "X"
+      : "O"
+    : localGame.turn;
+  const winner = isOnline
+    ? game!.winner
+      ? game!.winner === "playerX"
+        ? "X"
+        : "O"
+      : null
+    : localGame.winner;
+
   const handleCellClick = (index: number) => {
-    const { board, turn, winner } = game;
-    if (board[index] || winner) return;
+    if (board[index] || winner || isOnline) return; // Online is read-only here
 
     const newBoard = [...board];
 
@@ -50,12 +86,6 @@ export default function Board() {
         newXHistory.shift();
         setFadingIndex(newXHistory[0]);
         setFadingTurn("X");
-      } else if (newXHistory.length === 3) {
-        setFadingIndex(newXHistory[0]);
-        setFadingTurn("X");
-      } else {
-        setFadingIndex(null);
-        setFadingTurn(null);
       }
       setXHistory(newXHistory);
     } else {
@@ -64,34 +94,41 @@ export default function Board() {
         newOHistory.shift();
         setFadingIndex(newOHistory[0]);
         setFadingTurn("O");
-      } else if (newOHistory.length === 3) {
-        setFadingIndex(newOHistory[0]);
-        setFadingTurn("O");
-      } else {
-        setFadingIndex(null);
-        setFadingTurn(null);
       }
       setOHistory(newOHistory);
     }
 
     const result = checkWinner(newBoard);
     if (Array.isArray(result)) {
-      setGame({ board: newBoard, turn, winner: turn });
+      const updatedState = {
+        board: newBoard,
+        turn,
+        winner: turn,
+      };
+      setLocalGame(updatedState);
       setWinningLine(result);
       setShowModal(true);
       setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
+      onLocalStateChange?.(updatedState);
       return;
     }
 
-    setGame({
+    const updatedState = {
       board: newBoard,
       turn: turn === "X" ? "O" : "X",
       winner: null,
-    });
+    };
+    setLocalGame(updatedState);
+    onLocalStateChange?.(updatedState);
   };
 
   const restartGame = () => {
-    setGame({ board: Array(9).fill(null), turn: "X", winner: null });
+    const resetState: LocalGame = {
+      board: Array(9).fill(null),
+      turn: "X",
+      winner: null,
+    };
+    setLocalGame(resetState);
     setXHistory([]);
     setOHistory([]);
     setFadingIndex(null);
@@ -99,24 +136,29 @@ export default function Board() {
     setWinningLine(null);
     setAnimatedIndices(new Set());
     setShowModal(false);
+    onLocalStateChange?.(resetState);
   };
 
   return (
     <div className="flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-2">Local PvP Game</h1>
-      <p className="mb-4">Current Turn: {game.turn}</p>
+      {!isOnline && (
+        <>
+          <h1 className="text-2xl font-bold mb-2">Local PvP Game</h1>
+          <p className="mb-4">Current Turn: {turn}</p>
+        </>
+      )}
       <BoardCore
-        board={game.board}
+        board={board}
         onCellClick={handleCellClick}
-        winner={game.winner}
+        winner={winner}
         fadingIndex={fadingIndex}
         winningLine={winningLine}
         animatedIndices={animatedIndices}
       />
-      {showModal && game.winner && (
+      {!isOnline && winner && showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-md text-center">
-            <h2 className="text-2xl font-bold mb-4">{game.winner} Wins!</h2>
+            <h2 className="text-2xl font-bold mb-4">{winner} Wins!</h2>
             <div className="flex justify-center gap-4">
               <button
                 onClick={restartGame}
@@ -125,7 +167,7 @@ export default function Board() {
                 Restart
               </button>
               <button
-                onClick={() => window.location.href = "/"}
+                onClick={() => (window.location.href = "/")}
                 className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
               >
                 Back to Menu

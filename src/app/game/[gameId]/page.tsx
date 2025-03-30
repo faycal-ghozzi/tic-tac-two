@@ -5,17 +5,9 @@ import { useParams } from "next/navigation";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
 import Board from "../../../components/Board";
+import { GameType } from "../../../types/GameType";
 
 export default function GameDetailPage() {
-
-  type GameType = {
-    playerX: string;
-    playerO: string | null;
-    board: (string | null)[];
-    turn: "playerX" | "playerO";
-    status: string;
-    winner: string | null;
-  };
 
   const { gameId } = useParams<{ gameId: string }>();
   const [game, setGame] = useState<GameType | null>(null);
