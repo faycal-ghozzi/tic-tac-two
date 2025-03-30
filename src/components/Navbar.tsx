@@ -46,14 +46,14 @@ export default function Navbar() {
             Logout
             </button>
         )}
-        <a
+        {/* <a
             href="https://www.paypal.com/donate?hosted_button_id=fgh19"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-green-500 px-4 py-2 rounded hover:bg-green-700"
         >
             Donate
-        </a>
+        </a> */}
         </div>
     </nav>
   );

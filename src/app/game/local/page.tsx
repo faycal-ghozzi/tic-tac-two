@@ -20,8 +20,6 @@ export default function LocalGamePage() {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Local PvP Game</h1>
-      <div className="mb-2">Current Turn: {gameState.turn}</div>
       <Board
         isOnline={false}
         initialGameState={gameState}

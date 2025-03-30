@@ -35,3 +35,195 @@ body {
   animation: pop 0.3s ease-out;
 }
 
+@keyframes highlight {
+  0%, 100% {
+    background-color: #fde047;
+  }
+  50% {
+    background-color: #facc15;
+  }
+}
+
+.animate-highlight {
+  animation: highlight 1.5s ease-in-out infinite;
+}
+
+.video-btn {
+  @apply relative px-6 py-4 text-xl font-semibold rounded-lg text-white text-center transition-all duration-300 transform hover:scale-105 overflow-hidden;
+  border: 2px solid transparent;
+}
+
+.video-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(90deg, #7f5af0, #2cb67d, #7f5af0);
+  background-size: 200% 200%;
+  animation: borderGlow 3s linear infinite;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: destination-out;
+  z-index: -1;
+}
+
+@keyframes borderGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes auroraText {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-aurora {
+  background-image: linear-gradient(90deg, #f43f5e, #22d3ee, #a78bfa);
+  background-size: 300% 300%;
+  animation: auroraText 4s ease-in-out infinite;
+}
+
+
+#particles-bg {
+  background: radial-gradient(#00000011 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: scrollParticles 60s linear infinite;
+  opacity: 0.15;
+}
+@keyframes scrollParticles {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 1000px 1000px;
+  }
+}
+
+.glow-btn {
+  position: relative;
+  display: inline-block;
+  padding: 1rem 2rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  color: white;
+  text-decoration: none;
+  z-index: 0;
+  transition: transform 0.2s ease;
+  background: transparent;
+}
+
+.glow-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(90deg, #7f5af0, #2cb67d, #7f5af0);
+  background-size: 200% 200%;
+  animation: borderGlow 4s linear infinite;
+  z-index: -1;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: destination-out;
+}
+
+.glow-btn:hover {
+  transform: scale(1.05);
+}
+
+@keyframes borderGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.menu-btn {
+  position: relative;
+  display: inline-block;
+  padding: 1rem 2rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.menu-btn-purple {
+  background-color: #8b5cf6;
+  border: 2px solid transparent;
+}
+
+.menu-btn-purple:hover {
+  background-color: transparent;
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  box-shadow: 0 0 12px #8b5cf6;
+  transform: scale(1.05);
+}
+
+.menu-btn-blue {
+  background-color: #3b82f6;
+  border: 2px solid transparent;
+}
+
+.menu-btn-blue:hover {
+  background-color: transparent;
+  border-color: #3b82f6;
+  color: #3b82f6;
+  box-shadow: 0 0 12px #3b82f6;
+  transform: scale(1.05);
+}
+
+.menu-btn-green {
+  background-color: #10b981;
+  border: 2px solid transparent;
+}
+
+.menu-btn-green:hover {
+  background-color: transparent;
+  border-color: #10b981;
+  color: #10b981;
+  box-shadow: 0 0 12px #10b981;
+  transform: scale(1.05);
+}
+
+.loader {
+  border-top-color: #6366f1;
+  animation: spinner 1s linear infinite;
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

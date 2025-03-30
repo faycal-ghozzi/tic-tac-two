@@ -1,18 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../utils/firebase";
+import confetti from "canvas-confetti";
 import BoardCore from "./BoardCore";
 import { checkWinner } from "../utils/checkWinner";
-
-interface OnlineGame {
-  board: (string | null)[];
-  turn: "playerX" | "playerO";
-  playerX: string;
-  playerO: string | null;
-  winner: "playerX" | "playerO" | "Tie" | null;
-}
 
 interface LocalGame {
   board: (string | null)[];
@@ -20,28 +11,12 @@ interface LocalGame {
   winner: string | null;
 }
 
-interface BoardProps {
-  isOnline: boolean;
-  gameId?: string;
-  game?: OnlineGame;
-  initialGameState?: LocalGame;
-  onLocalStateChange?: (newState: LocalGame) => void;
-}
-
-export default function Board({
-  isOnline,
-  gameId,
-  game,
-  initialGameState,
-  onLocalStateChange,
-}: BoardProps) {
-  const [localState, setLocalState] = useState<LocalGame>(
-    initialGameState ?? {
-      board: Array(9).fill(null),
-      turn: "X",
-      winner: null,
-    }
-  );
+export default function Board() {
+  const [game, setGame] = useState<LocalGame>({
+    board: Array(9).fill(null),
+    turn: "X",
+    winner: null,
+  });
 
   const [xHistory, setXHistory] = useState<number[]>([]);
   const [oHistory, setOHistory] = useState<number[]>([]);
@@ -49,53 +24,30 @@ export default function Board({
   const [fadingTurn, setFadingTurn] = useState<"X" | "O" | null>(null);
   const [animatedIndices, setAnimatedIndices] = useState<Set<number>>(new Set());
   const [winningLine, setWinningLine] = useState<number[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
-  const getCurrentState = () => {
-    return isOnline
-      ? {
-          board: game?.board ?? Array(9).fill(null),
-          turn: game?.turn === "playerX" ? "X" : "O",
-          winner:
-            game?.winner === "playerX"
-              ? "X"
-              : game?.winner === "playerO"
-              ? "O"
-              : game?.winner ?? null,
-        }
-      : localState;
-  };
+  const handleCellClick = (index: number) => {
+    const { board, turn, winner } = game;
+    if (board[index] || winner) return;
 
-  const handleCellClick = async (index: number) => {
-    let { board, turn, winner } = getCurrentState();
-    let newBoard = [...board];
+    const newBoard = [...board];
 
-    // ✅ 1. Remove fading move if it's from the *opponent*
     if (fadingIndex !== null && fadingTurn !== turn) {
       newBoard[fadingIndex] = null;
       setFadingIndex(null);
       setFadingTurn(null);
     }
 
-    // 🚫 Invalid move
-    if (newBoard[index] !== null || winner) {
-      setError("Invalid move!");
-      setTimeout(() => setError(null), 1500);
-      return;
-    }
-
-    // ✅ 2. Place the move
     newBoard[index] = turn;
     setAnimatedIndices(new Set([index]));
 
-    // ✅ 3. Update move history & apply fading
-    let newXHistory = [...xHistory];
-    let newOHistory = [...oHistory];
+    const newXHistory = [...xHistory];
+    const newOHistory = [...oHistory];
 
     if (turn === "X") {
       newXHistory.push(index);
       if (newXHistory.length > 3) {
-        newXHistory.shift(); // remove oldest
+        newXHistory.shift();
         setFadingIndex(newXHistory[0]);
         setFadingTurn("X");
       } else if (newXHistory.length === 3) {
@@ -122,51 +74,66 @@ export default function Board({
       setOHistory(newOHistory);
     }
 
-    // ✅ 4. Check winner
     const result = checkWinner(newBoard);
     if (Array.isArray(result)) {
+      setGame({ board: newBoard, turn, winner: turn });
       setWinningLine(result);
-      setFadingIndex(null);
-      setFadingTurn(null);
+      setShowModal(true);
+      setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
+      return;
     }
 
-    // ✅ 5. Update game state
-    if (isOnline && gameId) {
-      try {
-        const gameRef = doc(db, "games", gameId);
-        await updateDoc(gameRef, {
-          board: newBoard,
-          turn: turn === "X" ? "playerO" : "playerX",
-          winner: result ? turn : null,
-        });
-      } catch (err) {
-        console.error("Error updating game:", err);
-        setError("Move failed. Try again.");
-      }
-    } else {
-      const updated = {
-        board: newBoard,
-        turn: turn === "X" ? "O" : "X",
-        winner: result ? turn : null,
-      };
-      setLocalState(updated);
-      onLocalStateChange?.(updated);
-    }
+    setGame({
+      board: newBoard,
+      turn: turn === "X" ? "O" : "X",
+      winner: null,
+    });
   };
 
-  const { board, winner } = getCurrentState();
+  const restartGame = () => {
+    setGame({ board: Array(9).fill(null), turn: "X", winner: null });
+    setXHistory([]);
+    setOHistory([]);
+    setFadingIndex(null);
+    setFadingTurn(null);
+    setWinningLine(null);
+    setAnimatedIndices(new Set());
+    setShowModal(false);
+  };
 
   return (
     <div className="flex flex-col items-center">
-      {error && <p className="text-red-500 mb-2">{error}</p>}
+      <h1 className="text-2xl font-bold mb-2">Local PvP Game</h1>
+      <p className="mb-4">Current Turn: {game.turn}</p>
       <BoardCore
-        board={board}
+        board={game.board}
         onCellClick={handleCellClick}
-        winner={winner}
+        winner={game.winner}
         fadingIndex={fadingIndex}
         winningLine={winningLine}
         animatedIndices={animatedIndices}
       />
+      {showModal && game.winner && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-md text-center">
+            <h2 className="text-2xl font-bold mb-4">{game.winner} Wins!</h2>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={restartGame}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                Restart
+              </button>
+              <button
+                onClick={() => window.location.href = "/"}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Back to Menu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
