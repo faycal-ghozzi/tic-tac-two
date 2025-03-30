@@ -28,8 +28,6 @@ interface BoardProps {
   onLocalStateChange?: (newState: LocalGame) => void;
 }
 
-type Symbol = "X" | "O";
-
 export default function Board({
   isOnline,
   gameId,
@@ -45,9 +43,11 @@ export default function Board({
     }
   );
 
-  // We track move history only for local mode — in real use, you'd track this online too if needed.
   const [xHistory, setXHistory] = useState<number[]>([]);
   const [oHistory, setOHistory] = useState<number[]>([]);
+  const [fadingIndex, setFadingIndex] = useState<number | null>(null);
+  const [semiFadingIndex, setSemiFadingIndex] = useState<number | null>(null);
+  const [pendingRemovalIndex, setPendingRemovalIndex] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const getCurrentState = () => {
@@ -66,33 +66,64 @@ export default function Board({
   };
 
   const handleCellClick = async (index: number) => {
-    const { board, turn, winner } = getCurrentState();
-    if (board[index] || winner) {
+    // Always remove the faded cell if scheduled
+    let { board, turn, winner } = getCurrentState();
+    let newBoard = [...board];
+
+    if (pendingRemovalIndex !== null) {
+      newBoard[pendingRemovalIndex] = null;
+      setPendingRemovalIndex(null);
+    }
+
+    // Prevent placing on non-null cells AFTER removing pending
+    if (newBoard[index] !== null || winner) {
       setError("Invalid move!");
       setTimeout(() => setError(null), 1500);
       return;
     }
 
-    let newBoard = [...board];
+    // Reset fade states if reused
+    if (fadingIndex === index) setFadingIndex(null);
+    if (semiFadingIndex === index) setSemiFadingIndex(null);
+
+    // Handle move
     let newXHistory = [...xHistory];
     let newOHistory = [...oHistory];
+    let nextFading: number | null = null;
+    let nextSemiFading: number | null = null;
+
+    const updateHistory = (history: number[], set: (h: number[]) => void) => {
+      history.push(index);
+      if (history.length > 3) {
+        nextFading = history.shift()!;
+        nextSemiFading = history[0] ?? null;
+      } else if (history.length === 3) {
+        nextSemiFading = history[0];
+        nextFading = null;
+      } else {
+        nextFading = null;
+        nextSemiFading = null;
+      }
+      set(history);
+    };
 
     if (turn === "X") {
-      newXHistory.push(index);
-      if (newXHistory.length > 3) {
-        const oldestIndex = newXHistory.shift()!;
-        newBoard[oldestIndex] = null;
-      }
+      updateHistory(newXHistory, setXHistory);
     } else {
-      newOHistory.push(index);
-      if (newOHistory.length > 3) {
-        const oldestIndex = newOHistory.shift()!;
-        newBoard[oldestIndex] = null;
-      }
+      updateHistory(newOHistory, setOHistory);
     }
 
     newBoard[index] = turn;
     const result = checkWinner(newBoard);
+
+    // Update fade visuals
+    setFadingIndex(nextFading);
+    setSemiFadingIndex(nextSemiFading);
+
+    // Only schedule removal if there's no winner
+    if (!result && nextFading !== null) {
+      setPendingRemovalIndex(nextFading);
+    }
 
     if (isOnline && gameId) {
       try {
@@ -107,15 +138,13 @@ export default function Board({
         setError("Move failed. Try again.");
       }
     } else {
-      const updatedLocal = {
+      const updated = {
         board: newBoard,
-        turn: (turn === "X" ? "O" : "X") as "X" | "O",
+        turn: turn === "X" ? "O" : "X",
         winner: result ?? null,
       };
-      setLocalState(updatedLocal);
-      setXHistory(newXHistory);
-      setOHistory(newOHistory);
-      onLocalStateChange?.(updatedLocal);
+      setLocalState(updated);
+      onLocalStateChange?.(updated);
     }
   };
 
@@ -128,6 +157,8 @@ export default function Board({
         board={board}
         onCellClick={handleCellClick}
         winner={winner}
+        fadingIndex={fadingIndex}
+        semiFadingIndex={semiFadingIndex}
       />
     </div>
   );
