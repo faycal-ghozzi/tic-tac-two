@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { auth, db } from "../../utils/firebase";
 import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 
@@ -9,7 +9,7 @@ export default function GamePage() {
   const [gameId, setGameId] = useState<string | null>(null);
   const [inputGameId, setInputGameId] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
 
   const createGame = async () => {
     try {
