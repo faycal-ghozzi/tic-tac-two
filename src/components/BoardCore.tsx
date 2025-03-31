@@ -15,7 +15,7 @@ interface BoardCoreProps {
     animatedIndices,
   }: BoardCoreProps) {
     return (
-      <div className="grid grid-cols-3 gap-2 w-48 mb-4">
+      <div className="grid grid-cols-3 gap-4">
         {board.map((cell, index) => {
           const isFaded = fadingIndex === index;
           const isWinning = winningLine?.includes(index);
@@ -32,7 +32,7 @@ interface BoardCoreProps {
             <div
               key={index}
               onClick={() => onCellClick(index)}
-              className="w-16 h-16 flex items-center justify-center border border-gray-300 text-2xl font-bold cursor-pointer transition-all duration-300"
+              className="w-20 h-20 flex items-center justify-center border border-gray-300 text-2xl font-bold cursor-pointer transition-all duration-300"
             >
               {cell && (
                 <span className={`${symbolColor} ${fadeClass} ${popClass} ${bounceClass}`}>
