@@ -102,7 +102,7 @@ export default function Board({
       const updatedState = {
         board: newBoard,
         turn,
-        winner: turn,
+        winner: turn as "X" | "O",
       };
       setLocalGame(updatedState);
       setWinningLine(result);
@@ -114,7 +114,7 @@ export default function Board({
 
     const updatedState = {
       board: newBoard,
-      turn: turn === "X" ? "O" : "X",
+      turn: (turn === "X" ? "O" : "X") as "X" | "O",
       winner: null,
     };
     setLocalGame(updatedState);
