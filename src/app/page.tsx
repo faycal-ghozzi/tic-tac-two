@@ -29,7 +29,7 @@ export default function HomePage() {
         <div id="particles-bg" className="absolute inset-0 -z-10 pointer-events-none"></div>
 
         <h1 className="text-5xl font-bold mb-10 text-center text-gray-900">
-          Welcome to Tic Tac <span className="text-indigo-600">TWO</span>!
+          Welcome to Tic Tac <span className="animate-aurora bg-clip-text text-transparent">TWO!</span>
         </h1>
 
         <div className="flex flex-col gap-6 w-[280px]">

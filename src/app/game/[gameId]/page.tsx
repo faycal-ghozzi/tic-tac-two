@@ -9,7 +9,9 @@ import { GameType } from "../../../types/GameType";
 
 export default function GameDetailPage() {
 
-  const { gameId } = useParams<{ gameId: string }>();
+  const params = useParams();
+  const gameId = Array.isArray(params.gameId) ? params.gameId[0] : params.gameId;
+
   const [game, setGame] = useState<GameType | null>(null);
   const [loading, setLoading] = useState(true);
 

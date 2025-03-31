@@ -81,7 +81,7 @@ export default function Board({
 
     if (turn === "X") {
       newXHistory.push(index);
-      if (newXHistory.length > 3) {
+      if (newXHistory.length > 2) {
         newXHistory.shift();
         setFadingIndex(newXHistory[0]);
         setFadingTurn("X");
@@ -89,7 +89,7 @@ export default function Board({
       setXHistory(newXHistory);
     } else {
       newOHistory.push(index);
-      if (newOHistory.length > 3) {
+      if (newOHistory.length > 2) {
         newOHistory.shift();
         setFadingIndex(newOHistory[0]);
         setFadingTurn("O");
