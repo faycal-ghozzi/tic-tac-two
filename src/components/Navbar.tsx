@@ -1,21 +1,21 @@
 "use client";
 
-import { auth } from "../utils/firebase";
-import { signOut } from "firebase/auth";
+// import { auth } from "../utils/firebase";
+// import { signOut } from "firebase/auth";
 import Link from "next/link";
-import { useState } from "react";
+// import { useState } from "react";
 
 export default function Navbar() {
-  const [user, setUser] = useState(auth.currentUser);
+  // const [user, setUser] = useState(auth.currentUser);
 
-  auth.onAuthStateChanged((currentUser) => {
-    setUser(currentUser);
-  });
+  // auth.onAuthStateChanged((currentUser) => {
+  //   setUser(currentUser);
+  // });
 
-  const handleLogout = async () => {
-    await signOut(auth);
-    setUser(null);
-  };
+  // const handleLogout = async () => {
+  //   await signOut(auth);
+  //   setUser(null);
+  // };
 
   return (
     <nav className="w-full bg-gray-800 text-white flex justify-between items-center px-4 py-2">
@@ -23,7 +23,7 @@ export default function Navbar() {
         <Link href="/">Tic Tac Two</Link>
       </h1>
       <div className="flex space-x-4">
-        {!user ? (
+        {/* {!user ? (
             <>
             <Link
                 href="/login"
@@ -45,7 +45,7 @@ export default function Navbar() {
             >
             Logout
             </button>
-        )}
+        )} */}
         {/* <a
             href="https://www.paypal.com/donate?hosted_button_id=fgh19"
             target="_blank"

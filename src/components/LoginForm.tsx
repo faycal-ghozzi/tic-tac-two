@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { auth } from "../utils/firebase";
+// import { auth } from "../utils/firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function LoginForm() {

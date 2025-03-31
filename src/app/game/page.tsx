@@ -59,10 +59,10 @@ export default function GamePage() {
 
   useEffect(() => {
     if (gameId) {
-      router.push(`/game/${gameId}`);
+      console.log("Game ID created:", gameId);
     }
-  }, [gameId, router]);
-
+  }, [gameId]);
+  
   return (
     <main className="flex flex-col items-center justify-center min-h-screen space-y-6">
       <button onClick={createGame} className="menu-btn menu-btn-blue">
