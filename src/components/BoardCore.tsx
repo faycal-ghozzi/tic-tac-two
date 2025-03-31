@@ -15,7 +15,7 @@ interface BoardCoreProps {
     animatedIndices,
   }: BoardCoreProps) {
     return (
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-1">
         {board.map((cell, index) => {
           const isFaded = fadingIndex === index;
           const isWinning = winningLine?.includes(index);
