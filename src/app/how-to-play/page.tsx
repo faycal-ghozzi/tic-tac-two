@@ -70,9 +70,9 @@ export default function HowToPlayPage() {
               <p className="text-center mb-2">Diagonal Win</p>
               <DemoBoard
                 board={[
-                  "X", null, "O",
-                  null, "X", "O",
-                  null, null, "X",
+                  "O", null, "X",
+                  null, "O", "X",
+                  null, null, "O",
                 ]}
                 winningLine={[0, 4, 8]}
               />
