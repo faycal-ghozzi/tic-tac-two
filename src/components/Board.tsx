@@ -129,9 +129,14 @@ export default function Board({
         };
         setLocalGame(updatedState);
         setWinningLine(result);
-        setShowModal(true);
+        setAnimatedIndices(new Set(result));
         setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
-        onLocalStateChange?.(updatedState);
+        setTimeout(() => {
+          setShowModal(true);
+          setLocalGame(updatedState);
+          onLocalStateChange?.(updatedState);
+        }, 1600);
+        // onLocalStateChange?.(updatedState);
         return;
       }
     

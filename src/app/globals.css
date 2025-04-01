@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body, #__next {
+  height: 100%;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -236,5 +240,9 @@ body {
 
 .animate-pop {
   animation: pop 0.3s ease-in-out;
+}
+
+.animate-win-bounce {
+  animation: win-bounce 0.5s ease-in-out 3;
 }
 

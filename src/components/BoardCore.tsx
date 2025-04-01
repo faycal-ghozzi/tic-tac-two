@@ -22,7 +22,7 @@ interface BoardCoreProps {
           const isAnimated = animatedIndices.has(index);
 
           const fadeClass = isFaded ? "opacity-50" : "opacity-100";
-          const bounceClass = isWinning ? "animate-bounce-once" : "";
+          const bounceClass = isWinning ? "animate-win-bounce" : "";
           const popClass = isAnimated ? "animate-pop" : "";
 
           const symbolColor =
