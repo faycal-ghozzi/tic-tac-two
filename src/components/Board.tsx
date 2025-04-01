@@ -105,20 +105,23 @@ export default function Board({
       if (turn === "X") {
         newXHistory.push(index);
         if (newXHistory.length > 2) {
+          const toFade = newXHistory[0];
           newXHistory.shift();
-          setFadingIndex(newXHistory[0]);
+          setFadingIndex(toFade);
           setFadingTurn("X");
         }
         setXHistory(newXHistory);
       } else {
         newOHistory.push(index);
         if (newOHistory.length > 2) {
+          const toFade = newOHistory[0];
           newOHistory.shift();
-          setFadingIndex(newOHistory[0]);
+          setFadingIndex(toFade);
           setFadingTurn("O");
         }
         setOHistory(newOHistory);
       }
+      
     
       const result = checkWinner(newBoard);
       if (Array.isArray(result)) {
