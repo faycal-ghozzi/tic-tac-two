@@ -26,6 +26,10 @@ export default function Board({
   initialGameState,
   onLocalStateChange,
 }: BoardProps) {
+
+  const bongSound = typeof Audio !== "undefined" ? new Audio("/sfx/bong.mp3") : null;
+  if (bongSound) bongSound.volume = 1.0;
+
   // Local game state
   const [localGame, setLocalGame] = useState<LocalGame>(
     initialGameState || {
@@ -62,64 +66,84 @@ export default function Board({
       : null
     : localGame.winner;
 
-  const handleCellClick = (index: number) => {
-    if (board[index] || winner || isOnline) return; // Online is read-only here
-
-    const newBoard = [...board];
-
-    if (fadingIndex !== null && fadingTurn !== turn) {
-      newBoard[fadingIndex] = null;
-      setFadingIndex(null);
-      setFadingTurn(null);
-    }
-
-    newBoard[index] = turn;
-    setAnimatedIndices(new Set([index]));
-
-    const newXHistory = [...xHistory];
-    const newOHistory = [...oHistory];
-
-    if (turn === "X") {
-      newXHistory.push(index);
-      if (newXHistory.length > 2) {
-        newXHistory.shift();
-        setFadingIndex(newXHistory[0]);
-        setFadingTurn("X");
+    const handleCellClick = (index: number) => {
+      const cellFilled = board[index] !== null;
+    
+      if (isOnline || winner) return;
+    
+      if (cellFilled) {
+        const cell = document.getElementById(`cell-${index}`);
+        if (cell) {
+          cell.classList.remove("animate-shake");
+          void cell.offsetWidth;
+          cell.classList.add("animate-shake");
+        }
+    
+        const audio = new Audio("/sfx/bong.mp3");
+        audio.volume = 1.0;
+        audio.play().catch((e) => {
+          console.warn("Bong playback blocked:", e);
+        });
+    
+        return;
       }
-      setXHistory(newXHistory);
-    } else {
-      newOHistory.push(index);
-      if (newOHistory.length > 2) {
-        newOHistory.shift();
-        setFadingIndex(newOHistory[0]);
-        setFadingTurn("O");
+    
+      const newBoard = [...board];
+    
+      if (fadingIndex !== null && fadingTurn !== turn) {
+        newBoard[fadingIndex] = null;
+        setFadingIndex(null);
+        setFadingTurn(null);
       }
-      setOHistory(newOHistory);
-    }
-
-    const result = checkWinner(newBoard);
-    if (Array.isArray(result)) {
+    
+      newBoard[index] = turn;
+      setAnimatedIndices(new Set([index]));
+    
+      const newXHistory = [...xHistory];
+      const newOHistory = [...oHistory];
+    
+      if (turn === "X") {
+        newXHistory.push(index);
+        if (newXHistory.length > 2) {
+          newXHistory.shift();
+          setFadingIndex(newXHistory[0]);
+          setFadingTurn("X");
+        }
+        setXHistory(newXHistory);
+      } else {
+        newOHistory.push(index);
+        if (newOHistory.length > 2) {
+          newOHistory.shift();
+          setFadingIndex(newOHistory[0]);
+          setFadingTurn("O");
+        }
+        setOHistory(newOHistory);
+      }
+    
+      const result = checkWinner(newBoard);
+      if (Array.isArray(result)) {
+        const updatedState = {
+          board: newBoard,
+          turn,
+          winner: turn as "X" | "O",
+        };
+        setLocalGame(updatedState);
+        setWinningLine(result);
+        setShowModal(true);
+        setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
+        onLocalStateChange?.(updatedState);
+        return;
+      }
+    
       const updatedState = {
         board: newBoard,
-        turn,
-        winner: turn as "X" | "O",
+        turn: turn === "X" ? "O" : "X",
+        winner: null,
       };
       setLocalGame(updatedState);
-      setWinningLine(result);
-      setShowModal(true);
-      setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
       onLocalStateChange?.(updatedState);
-      return;
-    }
-
-    const updatedState = {
-      board: newBoard,
-      turn: (turn === "X" ? "O" : "X") as "X" | "O",
-      winner: null,
     };
-    setLocalGame(updatedState);
-    onLocalStateChange?.(updatedState);
-  };
+    
 
   const restartGame = () => {
     const resetState: LocalGame = {
@@ -139,11 +163,13 @@ export default function Board({
   };
 
   return (
-    <div className="flex flex-col items-center">
+      <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-blue-50 p-6">
       {!isOnline && (
         <>
-          <h1 className="text-2xl font-bold mb-2">Local PvP Game</h1>
-          <p className="mb-4">Current Turn: {turn}</p>
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold text-gray-800">Local PvP Game</h1>
+          <p className="text-lg text-gray-600">Current Turn: <span className={`font-bold ${turn === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>{turn}</span></p>
+        </div>
         </>
       )}
       <BoardCore
