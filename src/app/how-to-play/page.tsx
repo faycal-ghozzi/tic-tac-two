@@ -90,7 +90,7 @@ export default function HowToPlayPage() {
 
         <section className="text-center">
           <h2 className="text-2xl font-semibold mb-4">Strategy Tips</h2>
-          <ul className="list-disc list-inside space-y-2">
+          <ul className="list-disc list-inside space-y-2 text-left mx-auto max-w-md">
             <li>Use fading to your advantage — plan which one disappears.</li>
             <li>Try to bait your opponent into a dead move.</li>
             <li>Look for diagonal traps — they’re harder to spot!</li>
