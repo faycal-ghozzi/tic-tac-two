@@ -27,27 +27,20 @@ const steps: {
     board: ["X", null, "X", 
             null, "O", null, 
             "O", null, "X"],
-    fadingIndex: 2,
+    fadingIndex: 0,
   },
   {
-    board: ["X", null, null, 
+    board: [null, null, "X", 
             "O", "O", null, 
             "O", null, "X"],
     fadingIndex: 6,
   },
   {
-    board: ["X", null, "X", 
-            "O", "O", null, 
+    board: [null, null, "X", 
+            "O", "O", "X", 
             null, null, "X"],
-    fadingIndex: 8,
-  },
-  {
-    board: ["X", null, "X", 
-            "O", "O", "O", 
-            null, null, null],
-    winningLine: [3, 4, 5],
-
-  },
+    winningLine: [2, 5, 8],
+    },
 ];
 
 export default function AnimatedDemo() {
