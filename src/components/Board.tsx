@@ -167,8 +167,7 @@ export default function Board({
       {!isOnline && (
         <>
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-gray-800">Local PvP Game</h1>
-          <p className="text-lg text-gray-600">Current Turn: <span className={`font-bold ${turn === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>{turn}</span></p>
+          <h1 className="text-4xl font-bold text-gray-800">Current Turn: <span className={`font-bold ${turn === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>{turn}</span></h1>
         </div>
         </>
       )}
