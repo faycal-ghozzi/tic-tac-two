@@ -158,24 +158,31 @@ io.on("connection", (socket) => {
   socket.on("vote-restart", (gameId: string) => {
     const game = games[gameId];
     if (!game) return;
-
+  
     const player = game.players.find(p => p.id === socket.id);
     if (player) player.readyToRestart = true;
-
+  
     if (game.players.every(p => p.readyToRestart)) {
       game.board = Array(9).fill(null);
       game.winner = null;
       game.turn = game.turn === "X" ? "O" : "X";
-
+  
+      game.xHistory = [];
+      game.oHistory = [];
+      game.fadingIndex = null;
+      game.fadingTurn = null;
+      game.winningLine = null;
+  
       game.players.forEach(p => {
         p.symbol = p.symbol === "X" ? "O" : "X";
         p.readyToRestart = false;
       });
-
+  
       io.to(gameId).emit("game-restarted", game);
       console.log(`[${gameId}] Game restarted. Symbols swapped.`);
     }
   });
+  
 
   socket.on("disconnect", () => {
     console.log("Disconnected:", socket.id);
