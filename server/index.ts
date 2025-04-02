@@ -63,9 +63,11 @@ io.on("connection", (socket) => {
 
     socket.emit("game-created", gameId);
     socket.emit("joined-successfully", {
-      game,
-      yourSymbol: player.symbol,
+        game,
+        yourSymbol: player.symbol,
     });
+      
+    io.to(gameId).emit("game-start", game);
 
     console.log(`[${gameId}] Game created by ${socket.id} as X`);
   });
