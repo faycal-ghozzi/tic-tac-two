@@ -1,6 +1,5 @@
 "use client"
 import Navbar from "../components/Navbar";
-import { usePathname } from "next/navigation";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react"
 
@@ -9,8 +8,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-
   return (
     <html lang="en" className="h-full">
       <body className={`relative h-full bg-gray-100`}>

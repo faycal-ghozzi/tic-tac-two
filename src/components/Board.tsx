@@ -5,6 +5,7 @@ import confetti from "canvas-confetti";
 import BoardCore from "./BoardCore";
 import { GameType } from "../types/GameType";
 import { handleMove } from "../utils/gameLogic";
+import Image from "next/image";
 
 interface LocalGame {
   board: (string | null)[];
@@ -52,9 +53,12 @@ export default function Board({
   const [localWinningLine, setLocalWinningLine] = useState<number[] | null>(null);
   const [showModal, setShowModal] = useState(false);
 
-  if (isOnline && (!game || !playerSymbol)) {
+  const isWaiting = isOnline && (!game || !playerSymbol);
+
+  if (isWaiting) {
     return <div>Waiting for opponent...</div>;
   }
+  
 
   const board = isOnline ? game!.board : localGame.board;
   const turn = isOnline
@@ -161,18 +165,17 @@ export default function Board({
 
   useEffect(() => {
     if (!isOnline || !game) return;
-  
     if (game.winner && !showModal) {
       setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
       setTimeout(() => setShowModal(true), 1600);
     }
-  }, [game?.winner, isOnline]);
+  }, [game, showModal, isOnline]);
 
   useEffect(() => {
     if (isOnline && game && !game.winner) {
       setShowModal(false);
     }
-  }, [game?.winner, isOnline]);
+  }, [game, isOnline]);
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-blue-50 p-6">
@@ -188,7 +191,7 @@ export default function Board({
                   key={symbol}
                   className="flex flex-col items-center justify-between px-4 py-3 w-40 bg-white rounded shadow"
                 >
-                  <img
+                  <Image
                     src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${playerId}`}
                     alt="avatar"
                     className="w-12 h-12 rounded-full mb-2"
@@ -252,7 +255,7 @@ export default function Board({
             </button>
           </div>
           <div className="mt-2 flex justify-center">
-            <img
+            <Image
               alt="QR Code"
               className="w-24 h-24"
               src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(`${window.location.origin}/game/online/${gameId}`)}`}

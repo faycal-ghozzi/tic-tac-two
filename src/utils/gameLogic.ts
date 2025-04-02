@@ -27,8 +27,8 @@ export function handleMove(
   if (board[index] !== null || winner) return null;
 
   const newBoard = [...board];
-  let newXHistory = [...xHistory];
-  let newOHistory = [...oHistory];
+  const newXHistory = [...xHistory];
+  const newOHistory = [...oHistory];
   let newFadingIndex: number | null = null;
   let newFadingTurn: Turn | null = null;
 
