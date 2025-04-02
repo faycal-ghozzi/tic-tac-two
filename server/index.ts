@@ -189,9 +189,10 @@ io.on("connection", (socket) => {
     }
   });
 });
+const PORT = process.env.PORT || 4000;
 
-server.listen(4000, () => {
-  console.log("Socket.IO server running on port 4000");
+server.listen(PORT, () => {
+  console.log(`Socket.IO server running on port ${PORT}`);
 });
 
 function checkWinner(board: (string | null)[]): number[] | null {
