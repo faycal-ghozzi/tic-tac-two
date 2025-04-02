@@ -159,6 +159,21 @@ export default function Board({
     onLocalStateChange?.(resetState);
   };
 
+  useEffect(() => {
+    if (!isOnline || !game) return;
+  
+    if (game.winner && !showModal) {
+      setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
+      setTimeout(() => setShowModal(true), 1600);
+    }
+  }, [game?.winner, isOnline]);
+
+  useEffect(() => {
+    if (isOnline && game && !game.winner) {
+      setShowModal(false);
+    }
+  }, [game?.winner, isOnline]);
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-blue-50 p-6">
       <div className="text-center mb-6">
