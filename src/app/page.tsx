@@ -23,12 +23,16 @@ export default function HomePage() {
   };
 
   return (
-    <main className="relative flex flex-col items-center justify-center min-h-screen px-4 text-black">  
-      <h1 className="text-5xl font-bold mb-10 text-center text-gray-900">
-        Welcome to Tic Tac{" "}
-        <span className="animate-aurora bg-clip-text text-transparent">TWO!</span>
+    <main className="relative flex flex-col items-center justify-center min-h-screen px-4 text-black">
+      <h1 className="text-5xl font-bold mb-4 text-center text-gray-900">
+        Tic Tac <span className="animate-aurora bg-clip-text text-transparent">TWO!</span>
       </h1>
-
+      <p className="text-lg text-center text-gray-600 mt-2 max-w-md mx-auto">
+        fewer moves, more strategy.
+      </p>
+      <br />
+      <br />
+      <br />
       <div className="flex flex-col gap-6 w-full max-w-xs">
         <Link href="/game/local" className="menu-btn menu-btn-purple">
           Local Multiplayer
