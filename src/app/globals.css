@@ -9,6 +9,14 @@
   user-select: none;
 }
 
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+
 html, body, #__next {
   height: 100%;
 }

@@ -13,7 +13,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="h-full">
-      <body className={`relative h-full bg-gray-100 ${pathname.startsWith("/game") ? "overflow-hidden" : "overflow-auto"}`}>
+      <body className={`relative h-full bg-gray-100`}>
       <div id="particles-bg" className="absolute inset-0 -z-10 pointer-events-none"></div>
         <Analytics />
         <Navbar />

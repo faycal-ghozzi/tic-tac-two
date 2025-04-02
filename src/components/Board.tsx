@@ -177,20 +177,50 @@ export default function Board({
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-blue-50 p-6">
       <div className="text-center mb-6">
+        {isOnline && game && (
+          <div className="w-full max-w-2xl mb-6 flex justify-center gap-4">
+            {["X", "O"].map((symbol) => {
+              const playerId = symbol === "X" ? game.playerX : game.playerO;
+              const isYou = playerId === playerSymbol;
+
+              return (
+                <div
+                  key={symbol}
+                  className="flex flex-col items-center justify-between px-4 py-3 w-40 bg-white rounded shadow"
+                >
+                  <img
+                    src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${playerId}`}
+                    alt="avatar"
+                    className="w-12 h-12 rounded-full mb-2"
+                  />
+                  <p className={`text-sm font-extrabold ${symbol === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>
+                    {symbol} {isYou ? "(You)" : ""}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Score: {game.players?.find(p => p.id === playerId)?.score ?? 0}
+                  </p>
+                  <div className="mt-1 text-xl">
+                    {game.players?.find(p => p.id === playerId)?.readyToRestart ? (
+                      <span className={`text-3xl font-extrabold ${symbol === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>
+                        {symbol}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 text-sm">Waiting...</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <br />
+        <br />
         <h1 className="text-4xl font-bold text-gray-800">
           Current Turn:
           <span className={`ml-2 ${turn === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>
             {turn}
           </span>
         </h1>
-        {isOnline && (
-          <p className="mt-2 text-sm text-gray-500">
-            You are:{" "}
-            <span className={`font-semibold ${playerSymbol === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>
-              {playerSymbol}
-            </span>
-          </p>
-        )}
       </div>
 
       <BoardCore
@@ -201,6 +231,36 @@ export default function Board({
         winningLine={winningLine}
         animatedIndices={animatedIndices}
       />
+
+      {isOnline && gameId && (
+        <div className="mt-6 text-center space-y-2">
+          <p className="text-sm text-gray-600">Invite a friend:</p>
+          <div className="flex justify-center gap-2 items-center">
+            <input
+              type="text"
+              readOnly
+              value={typeof window !== "undefined" ? `${window.location.origin}/game/online/${gameId}` : ""}
+              className="border px-2 py-1 rounded w-60 text-sm"
+            />
+            <button
+              className="bg-blue-500 text-white px-2 py-1 text-sm rounded hover:bg-blue-600"
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/game/online/${gameId}`);
+              }}
+            >
+              Copy
+            </button>
+          </div>
+          <div className="mt-2 flex justify-center">
+            <img
+              alt="QR Code"
+              className="w-24 h-24"
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(`${window.location.origin}/game/online/${gameId}`)}`}
+            />
+          </div>
+        </div>
+      )}
+
 
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">

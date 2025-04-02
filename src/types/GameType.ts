@@ -1,3 +1,5 @@
+import type { PlayerData } from "./SocketGame";
+
 export type GameType = {
   playerX: string;
   playerO: string | null;
@@ -9,4 +11,5 @@ export type GameType = {
   fadingTurn?: "X" | "O" | null;
   winningLine?: number[] | null;
   animatedIndices?: number[];
+  players?: PlayerData[];
 };

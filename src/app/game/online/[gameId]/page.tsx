@@ -93,5 +93,7 @@ function convertSocketToGameType(game: SocketGameData): GameType {
     fadingIndex: game.fadingIndex ?? null,
     winningLine: game.winningLine ?? null,
     animatedIndices: game.animatedIndices ?? [],
+    players: game.players,
   };
+  
 }
