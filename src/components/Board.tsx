@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
 import BoardCore from "./BoardCore";
-import { checkWinner } from "../utils/checkWinner";
 import { GameType } from "../types/GameType";
+import { handleMove } from "../utils/gameLogic";
+import Image from "next/image";
 
 interface LocalGame {
   board: (string | null)[];
@@ -16,6 +17,9 @@ interface BoardProps {
   isOnline: boolean;
   gameId?: string;
   game?: GameType;
+  playerSymbol?: "X" | "O";
+  onMove?: (index: number) => void;
+  onVoteRestart?: () => void;
   initialGameState?: LocalGame;
   onLocalStateChange?: (state: LocalGame) => void;
 }
@@ -23,14 +27,16 @@ interface BoardProps {
 export default function Board({
   isOnline,
   game,
+  gameId,
+  playerSymbol,
+  onMove,
+  onVoteRestart,
   initialGameState,
   onLocalStateChange,
 }: BoardProps) {
-
   const bongSound = typeof Audio !== "undefined" ? new Audio("/sfx/bong.mp3") : null;
   if (bongSound) bongSound.volume = 1.0;
 
-  // Local game state
   const [localGame, setLocalGame] = useState<LocalGame>(
     initialGameState || {
       board: Array(9).fill(null),
@@ -41,144 +47,184 @@ export default function Board({
 
   const [xHistory, setXHistory] = useState<number[]>([]);
   const [oHistory, setOHistory] = useState<number[]>([]);
-  const [fadingIndex, setFadingIndex] = useState<number | null>(null);
-  const [fadingTurn, setFadingTurn] = useState<"X" | "O" | null>(null);
-  const [animatedIndices, setAnimatedIndices] = useState<Set<number>>(new Set());
-  const [winningLine, setWinningLine] = useState<number[] | null>(null);
+  const [localFadingIndex, setLocalFadingIndex] = useState<number | null>(null);
+  const [localFadingTurn, setLocalFadingTurn] = useState<"X" | "O" | null>(null);
+  const [localAnimatedIndices, setLocalAnimatedIndices] = useState<Set<number>>(new Set());
+  const [localWinningLine, setLocalWinningLine] = useState<number[] | null>(null);
   const [showModal, setShowModal] = useState(false);
 
-  // Safety check for online mode
-  if (isOnline && !game) {
-    return <div>Loading game...</div>;
-  }
+  const isWaiting = isOnline && (!game || !playerSymbol);
 
-  const board = isOnline ? game!.board : localGame.board;
+  const board = isOnline ? game?.board ?? [] : localGame.board;
   const turn = isOnline
-    ? game!.turn === "playerX"
+    ? game?.turn === "playerX"
       ? "X"
       : "O"
     : localGame.turn;
   const winner = isOnline
-    ? game!.winner
-      ? game!.winner === "playerX"
+    ? game?.winner
+      ? game.winner === "playerX"
         ? "X"
         : "O"
       : null
     : localGame.winner;
 
-    const handleCellClick = (index: number) => {
-      const cellFilled = board[index] !== null;
-    
-      if (isOnline || winner) return;
-    
-      if (cellFilled) {
-        const cell = document.getElementById(`cell-${index}`);
-        if (cell) {
-          cell.classList.remove("animate-shake");
-          void cell.offsetWidth;
-          cell.classList.add("animate-shake");
-        }
-    
-        const audio = new Audio("/sfx/bong.mp3");
-        audio.volume = 1.0;
-        audio.play().catch((e) => {
-          console.warn("Bong playback blocked:", e);
-        });
-    
-        return;
+  const fadingIndex = isOnline ? game?.fadingIndex ?? null : localFadingIndex;
+  const winningLine = isOnline ? game?.winningLine ?? null : localWinningLine;
+  const animatedIndices = isOnline
+    ? new Set<number>(game?.animatedIndices ?? [])
+    : localAnimatedIndices;
+
+  useEffect(() => {
+    if (!isOnline || !game) return;
+    if (game.winner && !showModal) {
+      setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
+      setTimeout(() => setShowModal(true), 1600);
+    }
+  }, [game, showModal, isOnline]);
+
+  useEffect(() => {
+    if (isOnline && game && !game.winner) {
+      setShowModal(false);
+    }
+  }, [game, isOnline]);
+
+  const handleCellClick = (index: number) => {
+    const cellFilled = board[index] !== null;
+    if (winner) return;
+
+    if (cellFilled) {
+      if (bongSound) bongSound.play();
+      const el = document.getElementById(`cell-${index}`);
+      if (el) {
+        el.classList.add("animate-shake");
+        setTimeout(() => el.classList.remove("animate-shake"), 400);
       }
-    
-      const newBoard = [...board];
-    
-      if (fadingIndex !== null && fadingTurn !== turn) {
-        newBoard[fadingIndex] = null;
-        setFadingIndex(null);
-        setFadingTurn(null);
-      }
-    
-      newBoard[index] = turn;
-      setAnimatedIndices(new Set([index]));
-    
-      const newXHistory = [...xHistory];
-      const newOHistory = [...oHistory];
-    
-      if (turn === "X") {
-        newXHistory.push(index);
-        if (newXHistory.length > 2) {
-          const toFade = newXHistory[0];
-          newXHistory.shift();
-          setFadingIndex(toFade);
-          setFadingTurn("X");
-        }
-        setXHistory(newXHistory);
-      } else {
-        newOHistory.push(index);
-        if (newOHistory.length > 2) {
-          const toFade = newOHistory[0];
-          newOHistory.shift();
-          setFadingIndex(toFade);
-          setFadingTurn("O");
-        }
-        setOHistory(newOHistory);
-      }
-      
-    
-      const result = checkWinner(newBoard);
-      if (Array.isArray(result)) {
-        const updatedState = {
-          board: newBoard,
-          turn,
-          winner: turn as "X" | "O",
-        };
-        setLocalGame(updatedState);
-        setWinningLine(result);
-        setAnimatedIndices(new Set(result));
-        setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
-        setTimeout(() => {
-          setShowModal(true);
-          setLocalGame(updatedState);
-          onLocalStateChange?.(updatedState);
-        }, 1600);
-        // onLocalStateChange?.(updatedState);
-        return;
-      }
-    
-      const updatedState = {
-        board: newBoard,
-        turn: (turn === "X" ? "O" : "X") as "X" | "O",
-        winner: null,
-      };
-      setLocalGame(updatedState);
-      onLocalStateChange?.(updatedState);
-    };
-    
+      return;
+    }
+
+    if (isOnline) {
+      if (playerSymbol !== turn) return;
+      onMove?.(index);
+      return;
+    }
+
+    const result = handleMove(index, {
+      board,
+      turn,
+      winner,
+      xHistory,
+      oHistory,
+      fadingIndex: localFadingIndex,
+      fadingTurn: localFadingTurn,
+    });
+
+    if (!result) return;
+
+    const { newState, winningLine, animatedIndices } = result;
+
+    setLocalGame({
+      board: newState.board,
+      turn: newState.turn,
+      winner: newState.winner,
+    });
+
+    setXHistory(newState.xHistory);
+    setOHistory(newState.oHistory);
+    setLocalFadingIndex(newState.fadingIndex);
+    setLocalFadingTurn(newState.fadingTurn);
+    setLocalWinningLine(winningLine);
+    setLocalAnimatedIndices(animatedIndices);
+
+    if (newState.winner) {
+      setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
+      setTimeout(() => {
+        setShowModal(true);
+        onLocalStateChange?.(newState);
+      }, 1600);
+    } else {
+      onLocalStateChange?.(newState);
+    }
+  };
 
   const restartGame = () => {
+    if (isOnline) {
+      onVoteRestart?.();
+      return;
+    }
+
     const resetState: LocalGame = {
       board: Array(9).fill(null),
       turn: "X",
       winner: null,
     };
+
     setLocalGame(resetState);
     setXHistory([]);
     setOHistory([]);
-    setFadingIndex(null);
-    setFadingTurn(null);
-    setWinningLine(null);
-    setAnimatedIndices(new Set());
+    setLocalFadingIndex(null);
+    setLocalFadingTurn(null);
+    setLocalWinningLine(null);
+    setLocalAnimatedIndices(new Set());
     setShowModal(false);
     onLocalStateChange?.(resetState);
   };
 
+  if (isWaiting) {
+    return <div>Waiting for opponent...</div>;
+  }
+
   return (
-      <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-blue-50 p-6">
-      {!isOnline && (
-        <>
-        <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-gray-800">Current Turn: <span className={`font-bold ${turn === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>{turn}</span></h1>
-        </div>
-        </>
-      )}
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-blue-50 p-6">
+      <div className="text-center mb-6">
+        {isOnline && game && (
+          <div className="w-full max-w-2xl mb-6 flex justify-center gap-4">
+            {["X", "O"].map((symbol) => {
+              const playerId = symbol === "X" ? game.playerX : game.playerO;
+              const isYou = playerId === playerSymbol;
+
+              return (
+                <div
+                  key={symbol}
+                  className="flex flex-col items-center justify-between px-4 py-3 w-40 bg-white rounded shadow"
+                >
+                  <Image
+                    src={`https://api.dicebear.com/7.x/thumbs/png?seed=${playerId}`}
+                    alt="avatar"
+                    width={48}
+                    height={48}
+                    className="rounded-full mb-2"
+                  />
+                  <p className={`text-sm font-extrabold ${symbol === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>
+                    {symbol} {isYou ? "(You)" : ""}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Score: {game.players?.find(p => p.id === playerId)?.score ?? 0}
+                  </p>
+                  <div className="mt-1 text-xl">
+                    {game.players?.find(p => p.id === playerId)?.readyToRestart ? (
+                      <span className={`text-3xl font-extrabold ${symbol === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>
+                        {symbol}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 text-sm">Waiting...</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <br />
+        <br />
+        <h1 className="text-4xl font-bold text-gray-800">
+          Current Turn:
+          <span className={`ml-2 ${turn === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>
+            {turn}
+          </span>
+        </h1>
+      </div>
+
       <BoardCore
         board={board}
         onCellClick={handleCellClick}
@@ -187,11 +233,44 @@ export default function Board({
         winningLine={winningLine}
         animatedIndices={animatedIndices}
       />
-      {!isOnline && winner && showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-md text-center">
-            <h2 className="text-2xl font-bold mb-4">{winner} Wins!</h2>
-            <div className="flex justify-center gap-4">
+
+      {isOnline && gameId && (
+        <div className="mt-6 text-center space-y-2">
+          <p className="text-sm text-gray-600">Invite a friend:</p>
+          <div className="flex justify-center gap-2 items-center">
+            <input
+              type="text"
+              readOnly
+              value={typeof window !== "undefined" ? `${window.location.origin}/game/online/${gameId}` : ""}
+              className="border px-2 py-1 rounded w-60 text-sm"
+            />
+            <button
+              className="bg-blue-500 text-white px-2 py-1 text-sm rounded hover:bg-blue-600"
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/game/online/${gameId}`);
+              }}
+            >
+              Copy
+            </button>
+          </div>
+          <div className="mt-2 flex justify-center">
+            <Image
+              alt="QR Code"
+              width={120}
+              height={120}
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(`${window.location.origin}/game/online/${gameId}`)}`}
+            />
+          </div>
+        </div>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
+          <div className="bg-white text-center p-8 rounded-lg shadow-lg animate-pop">
+            <h2 className="text-3xl font-bold mb-4 text-gray-800">
+              🎉 {winner} Wins!
+            </h2>
+            <div className="flex justify-center gap-4 mt-4">
               <button
                 onClick={restartGame}
                 className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"

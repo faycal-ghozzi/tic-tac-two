@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+
 html, body, #__next {
   height: 100%;
 }
@@ -246,3 +261,6 @@ body {
   animation: win-bounce 0.5s ease-in-out 3;
 }
 
+.opacity-50 {
+  transition: opacity 0.3s ease;
+}
