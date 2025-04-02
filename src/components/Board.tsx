@@ -55,38 +55,45 @@ export default function Board({
 
   const isWaiting = isOnline && (!game || !playerSymbol);
 
-  if (isWaiting) {
-    return <div>Waiting for opponent...</div>;
-  }
-  
-
-  const board = isOnline ? game!.board : localGame.board;
+  const board = isOnline ? game?.board ?? [] : localGame.board;
   const turn = isOnline
-    ? game!.turn === "playerX"
+    ? game?.turn === "playerX"
       ? "X"
       : "O"
     : localGame.turn;
   const winner = isOnline
-    ? game!.winner
-      ? game!.winner === "playerX"
+    ? game?.winner
+      ? game.winner === "playerX"
         ? "X"
         : "O"
       : null
     : localGame.winner;
 
-    const fadingIndex = isOnline ? game?.fadingIndex ?? null : localFadingIndex;
-    const winningLine = isOnline ? game?.winningLine ?? null : localWinningLine;
-    const animatedIndices = isOnline
-      ? new Set<number>(game?.animatedIndices ?? [])
-      : localAnimatedIndices;
-    
+  const fadingIndex = isOnline ? game?.fadingIndex ?? null : localFadingIndex;
+  const winningLine = isOnline ? game?.winningLine ?? null : localWinningLine;
+  const animatedIndices = isOnline
+    ? new Set<number>(game?.animatedIndices ?? [])
+    : localAnimatedIndices;
+
+  useEffect(() => {
+    if (!isOnline || !game) return;
+    if (game.winner && !showModal) {
+      setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
+      setTimeout(() => setShowModal(true), 1600);
+    }
+  }, [game, showModal, isOnline]);
+
+  useEffect(() => {
+    if (isOnline && game && !game.winner) {
+      setShowModal(false);
+    }
+  }, [game, isOnline]);
 
   const handleCellClick = (index: number) => {
     const cellFilled = board[index] !== null;
     if (winner) return;
 
     if (cellFilled) {
-      // play sfx and shake
       if (bongSound) bongSound.play();
       const el = document.getElementById(`cell-${index}`);
       if (el) {
@@ -97,7 +104,7 @@ export default function Board({
     }
 
     if (isOnline) {
-      if (cellFilled || playerSymbol !== turn) return;
+      if (playerSymbol !== turn) return;
       onMove?.(index);
       return;
     }
@@ -163,19 +170,9 @@ export default function Board({
     onLocalStateChange?.(resetState);
   };
 
-  useEffect(() => {
-    if (!isOnline || !game) return;
-    if (game.winner && !showModal) {
-      setTimeout(() => confetti({ spread: 120, origin: { y: 0.5 } }), 200);
-      setTimeout(() => setShowModal(true), 1600);
-    }
-  }, [game, showModal, isOnline]);
-
-  useEffect(() => {
-    if (isOnline && game && !game.winner) {
-      setShowModal(false);
-    }
-  }, [game, isOnline]);
+  if (isWaiting) {
+    return <div>Waiting for opponent...</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-blue-50 p-6">
@@ -192,9 +189,11 @@ export default function Board({
                   className="flex flex-col items-center justify-between px-4 py-3 w-40 bg-white rounded shadow"
                 >
                   <Image
-                    src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${playerId}`}
+                    src={`https://api.dicebear.com/7.x/thumbs/png?seed=${playerId}`}
                     alt="avatar"
-                    className="w-12 h-12 rounded-full mb-2"
+                    width={48}
+                    height={48}
+                    className="rounded-full mb-2"
                   />
                   <p className={`text-sm font-extrabold ${symbol === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>
                     {symbol} {isYou ? "(You)" : ""}
@@ -257,13 +256,13 @@ export default function Board({
           <div className="mt-2 flex justify-center">
             <Image
               alt="QR Code"
-              className="w-24 h-24"
+              width={120}
+              height={120}
               src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(`${window.location.origin}/game/online/${gameId}`)}`}
             />
           </div>
         </div>
       )}
-
 
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
@@ -288,7 +287,6 @@ export default function Board({
           </div>
         </div>
       )}
-
     </div>
   );
 }
