@@ -90,5 +90,8 @@ function convertSocketToGameType(game: SocketGameData): GameType {
     turn: game.turn === "X" ? "playerX" : "playerO",
     winner: game.winner ? (game.winner === "X" ? "playerX" : "playerO") : null,
     status: game.winner ? "finished" : "ongoing",
+    fadingIndex: game.fadingIndex ?? null,
+    winningLine: game.winningLine ?? null,
+    animatedIndices: game.animatedIndices ?? [],
   };
 }

@@ -11,5 +11,9 @@ export type PlayerData = {
     board: (string | null)[];
     turn: "X" | "O";
     winner: "X" | "O" | null;
+    fadingIndex?: number | null;
+    winningLine?: number[] | null;
+    animatedIndices?: number[];
   };
+  
   

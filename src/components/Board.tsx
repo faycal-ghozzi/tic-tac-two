@@ -81,6 +81,17 @@ export default function Board({
     const cellFilled = board[index] !== null;
     if (winner) return;
 
+    if (cellFilled) {
+      // play sfx and shake
+      if (bongSound) bongSound.play();
+      const el = document.getElementById(`cell-${index}`);
+      if (el) {
+        el.classList.add("animate-shake");
+        setTimeout(() => el.classList.remove("animate-shake"), 400);
+      }
+      return;
+    }
+
     if (isOnline) {
       if (cellFilled || playerSymbol !== turn) return;
       onMove?.(index);
@@ -176,25 +187,30 @@ export default function Board({
         animatedIndices={animatedIndices}
       />
 
-      {winner && (
-        <div className="mt-6">
-          <h2 className="text-xl font-bold mb-4 text-center">{winner} Wins!</h2>
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={restartGame}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-            >
-              Restart
-            </button>
-            <button
-              onClick={() => (window.location.href = "/")}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-            >
-              Back to Menu
-            </button>
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
+          <div className="bg-white text-center p-8 rounded-lg shadow-lg animate-pop">
+            <h2 className="text-3xl font-bold mb-4 text-gray-800">
+              🎉 {winner} Wins!
+            </h2>
+            <div className="flex justify-center gap-4 mt-4">
+              <button
+                onClick={restartGame}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                Restart
+              </button>
+              <button
+                onClick={() => (window.location.href = "/")}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Back to Menu
+              </button>
+            </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }
