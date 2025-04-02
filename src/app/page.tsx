@@ -1,8 +1,27 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import socket from "@/lib/socket";
 
 export default function HomePage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    socket.on("game-created", (gameId: string) => {
+      router.push(`/game/online/${gameId}`);
+    });
+
+    return () => {
+      socket.off("game-created");
+    };
+  }, [router]);
+
+  const createOnlineGame = () => {
+    socket.emit("create-game");
+  };
+
   return (
     <main className="relative flex flex-col items-center justify-center min-h-screen px-4 text-black">  
       <h1 className="text-5xl font-bold mb-10 text-center text-gray-900">
@@ -15,17 +34,12 @@ export default function HomePage() {
           Local Multiplayer
         </Link>
 
-        <Link
-          href="#"
-          className="menu-btn menu-btn-blue relative group cursor-not-allowed opacity-50 text-center"
+        <button
+          onClick={createOnlineGame}
+          className="menu-btn menu-btn-blue text-center"
         >
-          <span className="block group-hover:opacity-0 transition-opacity duration-200">
-            Create Online Game
-          </span>
-          <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            Coming Soon
-          </span>
-        </Link>
+          Create Online Game
+        </button>
 
         <Link href="/how-to-play" className="menu-btn menu-btn-green">
           How to Play
