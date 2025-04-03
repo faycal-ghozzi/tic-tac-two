@@ -19,7 +19,7 @@ export default function LocalGamePage() {
   };
 
   return (
-    <main className="relative flex flex-col items-center justify-center min-h-screen px-4">
+    <div className="flex flex-col items-center">
       <div id="particles-bg" className="absolute inset-0 -z-10 pointer-events-none"></div>
       <Board
         isOnline={false}
@@ -34,6 +34,6 @@ export default function LocalGamePage() {
           Restart
         </button>
       )}
-    </main>
+    </div>
   );
 }
