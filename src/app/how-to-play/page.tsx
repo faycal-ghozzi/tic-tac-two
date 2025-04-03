@@ -9,7 +9,8 @@ import AnimatedDemo from "../../components/AnimatedDemo";
 
 export default function HowToPlayPage() {
   return (
-    <div className="flex flex-col items-center">
+    <div className="min-h-screen px-4 md:px-8 py-12 bg-white text-gray-800 overflow-y-auto lg:overflow-y-scroll">
+      <div className="w-full max-w-5xl mx-auto space-y-16">
 
         <h1 className="text-4xl font-bold text-center">How to Play</h1>
 
@@ -111,5 +112,6 @@ export default function HowToPlayPage() {
           </Link>
         </div>
       </div>
+    </main>
   );
 }
