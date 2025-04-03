@@ -1,54 +1,60 @@
-"use client";
+'use client'
 
-import { useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import socket from "@/lib/socket";
+import { useEffect } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import socket from "@/lib/socket"
+import dynamic from "next/dynamic"
+
+// Lazy load background (client only)
+const XOBackground = dynamic(() => import('@/components/XOBackground'), {
+  ssr: false,
+})
 
 export default function HomePage() {
-  const router = useRouter();
+  const router = useRouter()
 
   useEffect(() => {
     socket.on("game-created", (gameId: string) => {
-      router.push(`/game/online/${gameId}`);
-    });
+      router.push(`/game/online/${gameId}`)
+    })
 
     return () => {
-      socket.off("game-created");
-    };
-  }, [router]);
+      socket.off("game-created")
+    }
+  }, [router])
 
   const createOnlineGame = () => {
-    socket.emit("create-game");
-  };
+    socket.emit("create-game")
+  }
 
   return (
-    <div className="flex flex-col items-center">
-      <h1 className="text-5xl font-bold mb-4 text-center text-gray-900">
-        Tic Tac <span className="animate-aurora bg-clip-text text-transparent">TWO!</span>
-      </h1>
-      <p className="text-lg text-center text-gray-600 mt-2 max-w-md mx-auto">
-        fewer moves, more strategy.
-      </p>
-      <br />
-      <br />
-      <br />
-      <div className="flex flex-col gap-6 w-full max-w-xs">
-        <Link href="/game/local" className="menu-btn menu-btn-purple">
-          Local Multiplayer
-        </Link>
+    <>
+      {/* 🌌 Fullscreen animated XO background */}
+      <XOBackground />
 
-        <button
-          onClick={createOnlineGame}
-          className="menu-btn menu-btn-blue text-center"
-        >
-          Create Online Game
-        </button>
-
-        <Link href="/how-to-play" className="menu-btn menu-btn-green">
-          How to Play
-        </Link>
+      {/* 💬 Centered content with glassy background */}
+      <div className="fixed inset-0 z-10 flex items-center justify-center px-4 pointer-events-none">
+        <div className="bg-white/30 backdrop-blur-lg rounded-xl shadow-xl max-w-md w-full p-8 text-center pointer-events-auto">
+          <h1 className="text-5xl font-bold mb-4 text-gray-900">
+            Tic Tac <span className="animate-aurora bg-clip-text text-transparent">TWO!</span>
+          </h1>
+          <p className="text-lg text-gray-600 mt-2">
+            fewer moves, more strategy.
+          </p>
+          <div className="mt-8 flex flex-col gap-4 w-full">
+            <Link href="/game/local" className="menu-btn menu-btn-purple">
+              Local Multiplayer
+            </Link>
+            <button onClick={createOnlineGame} className="menu-btn menu-btn-blue">
+              Create Online Game
+            </button>
+            <Link href="/how-to-play" className="menu-btn menu-btn-green">
+              How to Play
+            </Link>
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    </>
+  )
 }
