@@ -18,9 +18,9 @@ export const metadata = {
     siteName: "Tic Tac TWO!",
     images: [
       {
-        url: "https://tic-tac-two-phi.vercel.app/image.png",
-        width: 127,
-        height: 127,
+        url: "https://tic-tac-two-phi.vercel.app/image-seo.png",
+        width: 1024,
+        height: 1024,
         alt: "Tic Tac TWO!",
       },
     ],
