@@ -55,6 +55,8 @@ export default function Board({
   const [localWinningLine, setLocalWinningLine] = useState<number[] | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [hasPlayedFirstMove, setHasPlayedFirstMove] = useState(false);
+  const [firstTurnMessage, setFirstTurnMessage] = useState<string | null>(null);
+
 
 
   const isWaiting = isOnline && (!game || !playerSymbol);
@@ -82,12 +84,22 @@ export default function Board({
     useEffect(() => {
       if (!isOnline || !game || !startingSymbol || !playerSymbol) return;
     
+      if (!firstTurnMessage) {
+        const msg =
+          startingSymbol === playerSymbol
+            ? "You go first this round!"
+            : "Opponent goes first this round.";
+        setFirstTurnMessage(msg);
+      }
+    
       const isFirstToPlay = startingSymbol === playerSymbol;
     
+      // Hide after first move
       if ((isFirstToPlay && playerSymbol !== turn) || (!isFirstToPlay && playerSymbol === turn)) {
         setHasPlayedFirstMove(true);
       }
-    }, [turn, isOnline, game, playerSymbol, startingSymbol]);
+    }, [game?.id, turn, startingSymbol, playerSymbol, isOnline, firstTurnMessage]);
+    
 
   useEffect(() => {
     if (!isOnline || !game) return;
@@ -101,6 +113,7 @@ export default function Board({
     if (isOnline && game && !game.winner) {
       setShowModal(false);
       setHasPlayedFirstMove(false);
+      setFirstTurnMessage(null);
     }
   }, [game, isOnline]);
 
@@ -242,17 +255,16 @@ export default function Board({
             {turn}
           </span>
         </h1>
-        {isOnline && startingSymbol && playerSymbol && (
+        {firstTurnMessage && (
           <p
             className={`mt-2 text-sm text-gray-600 transition-opacity duration-1000 ${
               hasPlayedFirstMove ? "opacity-0" : "opacity-100"
             }`}
           >
-            {startingSymbol === playerSymbol
-              ? "You go first this round!"
-              : "Opponent goes first this round."}
+            {firstTurnMessage}
           </p>
-        )}
+)}
+
       </div>
 
       <BoardCore

@@ -85,6 +85,7 @@ function convertSocketToGameType(game: SocketGameData): GameType {
   const playerO = game.players.find(p => p.symbol === "O")?.id || "";
 
   return {
+    id: game.id,
     playerX,
     playerO,
     board: game.board,

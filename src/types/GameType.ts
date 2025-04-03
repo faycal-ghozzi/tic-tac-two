@@ -1,6 +1,7 @@
 import type { PlayerData } from "./SocketGame";
 
 export type GameType = {
+  id: string;
   playerX: string;
   playerO: string | null;
   board: (string | null)[];
