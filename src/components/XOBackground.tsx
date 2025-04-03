@@ -1,19 +1,14 @@
 'use client'
 
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, extend } from '@react-three/fiber'
 import { Suspense, useRef, useMemo } from 'react'
 import * as THREE from 'three'
 import { EffectComposer } from '@react-three/postprocessing'
-import { extend, Object3DNode } from '@react-three/fiber'
+
+// @ts-expect-error - this file has no types, but works fine
 import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass'
 
 extend({ AfterimagePass })
-
-declare module '@react-three/fiber' {
-  interface ThreeElements {
-    afterimagePass: Object3DNode<AfterimagePass, typeof AfterimagePass>
-  }
-}
 
 type ShootingXOProps = {
   isX: boolean
@@ -49,14 +44,9 @@ function ShootingXO({ isX, color, direction, startPos, speed }: ShootingXOProps)
     )
   }
 
-  // O = torus
   return (
     <mesh ref={ref} geometry={new THREE.TorusGeometry(0.6, 0.2, 16, 100)}>
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={0.8}
-      />
+      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.8} />
     </mesh>
   )
 }
@@ -68,6 +58,8 @@ function XOAfterimageEffect() {
       passRef.current.damp = 0.93
     }
   })
+
+  // @ts-expect-error: JSX doesn't know about <afterimagePass />
   return <afterimagePass ref={passRef} args={[undefined, 0.93]} />
 }
 
