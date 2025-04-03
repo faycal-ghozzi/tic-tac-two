@@ -23,7 +23,8 @@ export default function HomePage() {
   };
 
   return (
-    <main className="relative flex flex-col items-center justify-center min-h-screen px-4 text-black">
+    <main className="flex flex-col flex-grow items-center justify-center px-4 text-black text-center">
+
       <h1 className="text-5xl font-bold mb-4 text-center text-gray-900">
         Tic Tac <span className="animate-aurora bg-clip-text text-transparent">TWO!</span>
       </h1>
