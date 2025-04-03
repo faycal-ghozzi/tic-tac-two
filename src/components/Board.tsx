@@ -54,6 +54,8 @@ export default function Board({
   const [localAnimatedIndices, setLocalAnimatedIndices] = useState<Set<number>>(new Set());
   const [localWinningLine, setLocalWinningLine] = useState<number[] | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [hasPlayedFirstMove, setHasPlayedFirstMove] = useState(false);
+
 
   const isWaiting = isOnline && (!game || !playerSymbol);
 
@@ -88,6 +90,7 @@ export default function Board({
   useEffect(() => {
     if (isOnline && game && !game.winner) {
       setShowModal(false);
+      setHasPlayedFirstMove(false);
     }
   }, [game, isOnline]);
 
@@ -106,6 +109,9 @@ export default function Board({
     }
 
     if (isOnline) {
+      if (playerSymbol === turn && !hasPlayedFirstMove) {
+        setHasPlayedFirstMove(true);
+      }      
       if (playerSymbol !== turn) return;
       onMove?.(index);
       return;
@@ -229,7 +235,7 @@ export default function Board({
             {turn}
           </span>
         </h1>
-        {isOnline && startingSymbol && playerSymbol && (
+        {isOnline && startingSymbol && playerSymbol && !hasPlayedFirstMove && (
           <p className="mt-2 text-sm text-gray-600">
             {startingSymbol === playerSymbol
               ? "You go first this round!"
