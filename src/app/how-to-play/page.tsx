@@ -112,6 +112,6 @@ export default function HowToPlayPage() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
