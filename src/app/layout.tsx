@@ -15,7 +15,7 @@ export default function RootLayout({
         <div id="particles-bg" className="absolute inset-0 -z-10 pointer-events-none"></div>
           <Analytics />
           <Navbar />
-          <main className="flex-grow relative z-10">
+          <main className="flex flex-col flex-grow relative z-10items-center justify-center px-4 text-black text-center">
             {children}
           </main>
           <Footer />
