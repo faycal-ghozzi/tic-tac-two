@@ -54,8 +54,9 @@ export default function Board({
   const [localAnimatedIndices, setLocalAnimatedIndices] = useState<Set<number>>(new Set());
   const [localWinningLine, setLocalWinningLine] = useState<number[] | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [hasPlayedFirstMove, setHasPlayedFirstMove] = useState(false);
   const [firstTurnMessage, setFirstTurnMessage] = useState<string | null>(null);
+  const [hasPlayedFirstMove, setHasPlayedFirstMove] = useState(false);
+
 
 
 
@@ -81,26 +82,27 @@ export default function Board({
     ? new Set<number>(game?.animatedIndices ?? [])
     : localAnimatedIndices;
 
-    useEffect(() => {
-      if (!isOnline || !game || !startingSymbol || !playerSymbol) return;
+  useEffect(() => {
+    if (!isOnline || !game || !startingSymbol || !playerSymbol) return;
+  
+    const isNewGame = !firstTurnMessage;
+  
+    if (isNewGame) {
+      const msg =
+        startingSymbol === playerSymbol
+          ? "You go first this round!"
+          : "Opponent goes first this round.";
+      setFirstTurnMessage(msg);
+      setHasPlayedFirstMove(false);
+    }
+  
+    const isFirstToPlay = startingSymbol === playerSymbol;
+  
+    if ((isFirstToPlay && playerSymbol !== turn) || (!isFirstToPlay && playerSymbol === turn)) {
+      setHasPlayedFirstMove(true);
+    }
+  }, [game?.id, turn, startingSymbol, playerSymbol, isOnline]);
     
-      if (!firstTurnMessage) {
-        const msg =
-          startingSymbol === playerSymbol
-            ? "You go first this round!"
-            : "Opponent goes first this round.";
-        setFirstTurnMessage(msg);
-      }
-    
-      const isFirstToPlay = startingSymbol === playerSymbol;
-    
-      // Hide after first move
-      if ((isFirstToPlay && playerSymbol !== turn) || (!isFirstToPlay && playerSymbol === turn)) {
-        setHasPlayedFirstMove(true);
-      }
-    }, [game?.id, turn, startingSymbol, playerSymbol, isOnline, firstTurnMessage]);
-    
-
   useEffect(() => {
     if (!isOnline || !game) return;
     if (game.winner && !showModal) {
@@ -112,8 +114,8 @@ export default function Board({
   useEffect(() => {
     if (isOnline && game && !game.winner) {
       setShowModal(false);
-      setHasPlayedFirstMove(false);
       setFirstTurnMessage(null);
+      setHasPlayedFirstMove(false);
     }
   }, [game, isOnline]);
 
@@ -256,14 +258,15 @@ export default function Board({
           </span>
         </h1>
         {firstTurnMessage && (
-          <p
-            className={`mt-2 text-sm text-gray-600 transition-opacity duration-1000 ${
-              hasPlayedFirstMove ? "opacity-0" : "opacity-100"
+          <div
+            className={`transition-all duration-1000 ease-in-out overflow-hidden ${
+              hasPlayedFirstMove ? "opacity-0 max-h-0" : "opacity-100 max-h-20"
             }`}
           >
-            {firstTurnMessage}
-          </p>
-)}
+            <p className="mt-2 text-sm text-gray-600">{firstTurnMessage}</p>
+          </div>
+        )}
+
 
       </div>
 
