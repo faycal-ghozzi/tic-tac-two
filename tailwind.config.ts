@@ -16,10 +16,21 @@ const config: Config = {
           "50%": { transform: "translateY(0)" },
           "75%": { transform: "translateY(-12%)" },
         },
+        "bounce-slow": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
+        "wiggle": {
+          "0%, 100%": { transform: "rotate(0)" },
+          "25%": { transform: "rotate(6deg)" },
+          "75%": { transform: "rotate(-6deg)" },
+        },
       },
       animation: {
         pop: "pop 0.3s ease-out",
         "win-bounce": "win-bounce 0.4s ease-in-out 4",
+        "bounce-slow": "bounce-slow 2s infinite ease-in-out",
+        "wiggle": "wiggle 2s infinite ease-in-out",
       },
     },
   },
