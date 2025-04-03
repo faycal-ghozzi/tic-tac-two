@@ -205,7 +205,7 @@ export default function Board({
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 to-blue-50 p-6">
+    <div className="min-h-screen flex flex-col justify-center items-center p-6">
       <div className="text-center mb-6">
         {isOnline && game && (
           <div className="w-full max-w-2xl mb-6 flex justify-center gap-4">
