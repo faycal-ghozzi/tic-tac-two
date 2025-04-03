@@ -15,46 +15,51 @@ declare module '@react-three/fiber' {
   }
 }
 
-function ShootingXO({ isX, color, direction, startPos, speed }: any) {
-    const ref = useRef<THREE.Group | THREE.Mesh>(null!)
-  
-    useFrame((_, delta) => {
-      if (!ref.current) return
-      ref.current.position.addScaledVector(direction, delta * speed)
-      if (ref.current.position.length() > 30) {
-        ref.current.position.copy(startPos)
-      }
-    })
-  
-    if (isX) {
+type ShootingXOProps = {
+  isX: boolean
+  color: string
+  direction: THREE.Vector3
+  startPos: THREE.Vector3
+  speed: number
+}
 
-        return (
-        <group ref={ref} rotation={[0, 0, Math.PI / 4]}>
-          <mesh>
-            <boxGeometry args={[0.3, 1.2, 0.2]} />
-            <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.8} />
-          </mesh>
+function ShootingXO({ isX, color, direction, startPos, speed }: ShootingXOProps) {
+  const ref = useRef<THREE.Group | THREE.Mesh>(null!)
 
-          <mesh>
-            <boxGeometry args={[1.2, 0.3, 0.2]} />
-            <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.8} />
-          </mesh>
-        </group>
-      )
+  useFrame((_, delta) => {
+    if (!ref.current) return
+    ref.current.position.addScaledVector(direction, delta * speed)
+    if (ref.current.position.length() > 30) {
+      ref.current.position.copy(startPos)
     }
-  
-    const geometry = new THREE.TorusGeometry(0.6, 0.2, 16, 100)
-  
+  })
+
+  if (isX) {
     return (
-      <mesh ref={ref} geometry={geometry}>
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={0.8}
-        />
-      </mesh>
+      <group ref={ref} rotation={[0, 0, Math.PI / 4]}>
+        <mesh>
+          <boxGeometry args={[0.3, 1.2, 0.2]} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.8} />
+        </mesh>
+        <mesh>
+          <boxGeometry args={[1.2, 0.3, 0.2]} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.8} />
+        </mesh>
+      </group>
     )
   }
+
+  // O = torus
+  return (
+    <mesh ref={ref} geometry={new THREE.TorusGeometry(0.6, 0.2, 16, 100)}>
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={0.8}
+      />
+    </mesh>
+  )
+}
 
 function XOAfterimageEffect() {
   const passRef = useRef<AfterimagePass>(null!)
@@ -69,7 +74,7 @@ function XOAfterimageEffect() {
 export default function XOBackground() {
   const shootingXOs = useMemo(() => {
     return Array.from({ length: 15 }).map((_, i) => {
-      const dir = new THREE.Vector3(
+      const direction = new THREE.Vector3(
         Math.random() * 0.4 - 0.2,
         Math.random() * 0.2 - 0.1,
         Math.random() * 0.4
@@ -79,7 +84,7 @@ export default function XOBackground() {
         id: i,
         isX: i % 2 === 0,
         color: i % 2 === 0 ? '#EF476F' : '#06D6A0',
-        direction: dir,
+        direction,
         speed: 3 + Math.random() * 2,
         startPos: new THREE.Vector3(
           Math.random() * 20 - 10,
