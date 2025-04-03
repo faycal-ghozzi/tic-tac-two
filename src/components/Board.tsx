@@ -236,12 +236,16 @@ export default function Board({
                     Score: {game.players?.find(p => p.id === playerId)?.score ?? 0}
                   </p>
                   <div className="mt-1 text-xl">
-                    {game.players?.find(p => p.id === playerId)?.readyToRestart ? (
-                      <span className={`text-3xl font-extrabold ${symbol === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>
-                        {symbol}
-                      </span>
+                    {game.players?.length === 2 ? (
+                      game.players?.find(p => p.id === playerId)?.readyToRestart ? (
+                        <span className={`text-3xl font-extrabold ${symbol === "X" ? "text-[#EF476F]" : "text-[#06D6A0]"}`}>
+                          {symbol}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-sm">Ready</span>
+                      )
                     ) : (
-                      <span className="text-gray-400 text-sm">Waiting...</span>
+                      <span className="text-gray-400 text-sm">Not Ready</span>
                     )}
                   </div>
                 </div>
