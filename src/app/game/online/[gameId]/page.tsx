@@ -73,6 +73,7 @@ export default function OnlineGamePage() {
       gameId={gameId as string}
       game={game}
       playerSymbol={playerSymbol}
+      startingSymbol={game.turn === "playerX" ? "X" : "O"}
       onMove={handleMove}
       onVoteRestart={handleRestartVote}
     />

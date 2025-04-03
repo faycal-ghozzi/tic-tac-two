@@ -3,9 +3,11 @@ export type PlayerData = {
     symbol: "X" | "O";
     score: number;
     readyToRestart: boolean;
-  };
+    number: 1 | 2;
+};
   
-  export type SocketGameData = {
+  
+export type SocketGameData = {
     id: string;
     players: PlayerData[];
     board: (string | null)[];
@@ -14,6 +16,5 @@ export type PlayerData = {
     fadingIndex?: number | null;
     winningLine?: number[] | null;
     animatedIndices?: number[];
-  };
-  
+};
   

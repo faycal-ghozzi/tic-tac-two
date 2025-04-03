@@ -18,6 +18,7 @@ interface BoardProps {
   gameId?: string;
   game?: GameType;
   playerSymbol?: "X" | "O";
+  startingSymbol?: "X" | "O";
   onMove?: (index: number) => void;
   onVoteRestart?: () => void;
   initialGameState?: LocalGame;
@@ -29,6 +30,7 @@ export default function Board({
   game,
   gameId,
   playerSymbol,
+  startingSymbol,
   onMove,
   onVoteRestart,
   initialGameState,
@@ -188,6 +190,10 @@ export default function Board({
                   key={symbol}
                   className="flex flex-col items-center justify-between px-4 py-3 w-40 bg-white rounded shadow"
                 >
+                  <p className="text-xs text-gray-400">
+                    Player {game.players?.find(p => p.id === playerId)?.number} {isYou ? "(You)" : ""}
+                  </p>
+
                   <Image
                     src={`https://api.dicebear.com/7.x/thumbs/png?seed=${playerId}`}
                     alt="avatar"
@@ -223,6 +229,13 @@ export default function Board({
             {turn}
           </span>
         </h1>
+        {isOnline && startingSymbol && playerSymbol && (
+          <p className="mt-2 text-sm text-gray-600">
+            {startingSymbol === playerSymbol
+              ? "You go first this round!"
+              : "Opponent goes first this round."}
+          </p>
+        )}
       </div>
 
       <BoardCore

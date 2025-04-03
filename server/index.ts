@@ -17,11 +17,13 @@ const io = new Server(server, {
 type PlayerSymbol = "X" | "O";
 
 type Player = {
-  id: string;
-  symbol: PlayerSymbol;
-  score: number;
-  readyToRestart: boolean;
+    id: string;
+    symbol: PlayerSymbol;
+    score: number;
+    readyToRestart: boolean;
+    number: 1 | 2;
 };
+  
 
 type Game = {
     id: string;
@@ -29,12 +31,13 @@ type Game = {
     board: (string | null)[];
     turn: PlayerSymbol;
     winner: PlayerSymbol | null;
+    startingSymbol: PlayerSymbol;
     xHistory?: number[];
     oHistory?: number[];
     fadingIndex?: number | null;
     fadingTurn?: "X" | "O" | null;
     winningLine?: number[] | null;
-};
+  };  
 
 const games: Record<string, Game> = {};
 
@@ -48,29 +51,33 @@ io.on("connection", (socket) => {
       symbol: "X",
       score: 0,
       readyToRestart: false,
+      number: 1,
     };
-
+  
     const game: Game = {
       id: gameId,
       players: [player],
       board: Array(9).fill(null),
       turn: "X",
       winner: null,
+      startingSymbol: "X",
     };
-
+  
     games[gameId] = game;
     socket.join(gameId);
-
+  
     socket.emit("game-created", gameId);
     socket.emit("joined-successfully", {
-        game,
-        yourSymbol: player.symbol,
+      game,
+      yourSymbol: player.symbol,
+      startingSymbol: game.startingSymbol,
     });
-      
+  
     io.to(gameId).emit("game-start", game);
-
+  
     console.log(`[${gameId}] Game created by ${socket.id} as X`);
   });
+  
 
   socket.on("join-game", (gameId: string) => {
     const game = games[gameId];
@@ -96,11 +103,12 @@ io.on("connection", (socket) => {
     }
   
     const player: Player = {
-      id: socket.id,
-      symbol: "O",
-      score: 0,
-      readyToRestart: false,
-    };
+        id: socket.id,
+        symbol: "O",
+        score: 0,
+        readyToRestart: false,
+        number: 2,
+    };      
   
     game.players.push(player);
     socket.join(gameId);
@@ -165,27 +173,30 @@ io.on("connection", (socket) => {
     if (player) player.readyToRestart = true;
   
     if (game.players.every(p => p.readyToRestart)) {
+      game.startingSymbol = game.startingSymbol === "X" ? "O" : "X";
+      game.turn = game.startingSymbol;
+  
+      const startingPlayer = game.players.find(p => p.symbol === game.startingSymbol)!;
+      const otherPlayer = game.players.find(p => p.symbol !== game.startingSymbol)!;
+  
+      startingPlayer.symbol = game.startingSymbol;
+      otherPlayer.symbol = game.startingSymbol === "X" ? "O" : "X";
+  
       game.board = Array(9).fill(null);
       game.winner = null;
-      game.turn = game.turn === "X" ? "O" : "X";
-  
       game.xHistory = [];
       game.oHistory = [];
       game.fadingIndex = null;
       game.fadingTurn = null;
       game.winningLine = null;
   
-      game.players.forEach(p => {
-        p.symbol = p.symbol === "X" ? "O" : "X";
-        p.readyToRestart = false;
-      });
+      game.players.forEach(p => (p.readyToRestart = false));
   
       io.to(gameId).emit("game-restarted", game);
-      console.log(`[${gameId}] Game restarted. Symbols swapped.`);
+      console.log(`[${gameId}] Game restarted. Symbols and starter swapped.`);
     }
   });
   
-
   socket.on("disconnect", () => {
     console.log("Disconnected:", socket.id);
     for (const [id, game] of Object.entries(games)) {
