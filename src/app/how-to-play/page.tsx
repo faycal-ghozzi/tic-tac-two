@@ -24,7 +24,7 @@ export default function HowToPlayPage() {
         <section className="text-center">
         <h2 className="text-2xl font-semibold mb-4">Fading Example</h2>
         <p className="mb-4">
-            Unlike an ordinary tic tac toe game, placing a third symbol makes the oldest one fades away.
+            Unlike an ordinary tic tac toe game, placing a third symbol makes the oldest one fade away.
         </p>
         <div className="flex justify-center">
             <BoardCoreCompact
